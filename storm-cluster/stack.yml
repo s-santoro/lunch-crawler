@@ -1,0 +1,50 @@
+version: '3.1'
+
+services:
+  zookeeper:
+    image: zookeeper
+    container_name: zookeeper
+    restart: always
+
+  nimbus:
+    image: storm
+    container_name: nimbus
+    command: storm nimbus
+    depends_on:
+      - zookeeper
+    links:
+      - zookeeper
+    restart: always
+    ports:
+      - 6627:6627
+    volumes:
+      #host-system needs in stack.yml directory a subdirectory topology
+      #inside topology is the topology.jar saved
+      #to run crawlTopology enter nimbus-container on runtime
+      #   cd /topology
+      #add topology to storm
+      #   storm jar topology.jar path/to/classfile/CrawlTopology
+      #run topology
+      #   storm jar topology.jar path/to/classfile/CrawlTopology -local
+      #source(host-system):target(nimbus-container)
+      - './topology:/topology'
+
+  supervisor:
+    image: storm
+    container_name: supervisor
+    command: storm supervisor
+    depends_on:
+      - nimbus
+      - zookeeper
+    links:
+      - nimbus
+      - zookeeper
+    restart: always
+
+  ui:
+    image: storm
+    container_name: storm_ui
+    command: storm ui
+    restart: always
+    ports:
+      - 8080:8080
