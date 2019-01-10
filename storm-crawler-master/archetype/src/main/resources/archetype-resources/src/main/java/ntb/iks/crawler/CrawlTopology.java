@@ -1,4 +1,4 @@
-package ${package};
+package ntb.iks.crawler;
 
 /**
  * Licensed to DigitalPebble Ltd under one or more
