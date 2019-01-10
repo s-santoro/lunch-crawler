@@ -22,12 +22,12 @@ services:
       #inside topology is the topology.jar saved
       #to run crawlTopology enter nimbus-container on runtime
       #   cd /topology
-      #add topology to storm
-      #   storm jar topology.jar path/to/classfile/CrawlTopology
-      #run topology
-      #   storm jar topology.jar path/to/classfile/CrawlTopology -local
+      #add topology to storm -- use correct jar-name --
+      #   storm jar topology.jar ntb/iks/crawler/CrawlTopology
+      #run topology -- use correct jar-name --
+      #   storm jar topology.jar ntb/iks/crawler/CrawlTopology -local
       #source(host-system):target(nimbus-container)
-      - './topology:/topology'
+      - '../storm-crawler-master/archetype/src/main/resources/archetype-resources/target:/topology'
 
   supervisor:
     image: storm
