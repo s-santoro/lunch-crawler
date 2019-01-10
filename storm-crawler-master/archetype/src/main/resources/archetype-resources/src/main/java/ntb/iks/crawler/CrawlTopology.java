@@ -27,6 +27,7 @@ import com.digitalpebble.stormcrawler.indexing.StdOutIndexer;
 import com.digitalpebble.stormcrawler.persistence.StdOutStatusUpdater;
 import com.digitalpebble.stormcrawler.spout.MemorySpout;
 
+import ntb.iks.bolts.StdOutContentIndexer;
 import org.apache.storm.topology.TopologyBuilder;
 import org.apache.storm.tuple.Fields;
 
@@ -43,7 +44,7 @@ public class CrawlTopology extends ConfigurableTopology {
     protected int run(String[] args) {
         TopologyBuilder builder = new TopologyBuilder();
 
-        String[] testURLs = new String[] { "https://www.gaultmillau.ch/restaurants" };
+        String[] testURLs = new String[] { "https://www.gaultmillau.ch/restaurants", "http://www.ristoranteoldtimer.ch/speisekarte" };
 
         builder.setSpout("spout", new MemorySpout(testURLs));
 
@@ -62,7 +63,7 @@ public class CrawlTopology extends ConfigurableTopology {
         builder.setBolt("parse", new JSoupParserBolt())
                 .localOrShuffleGrouping("feeds");
 
-        builder.setBolt("index", new StdOutIndexer())
+        builder.setBolt("index", new StdOutContentIndexer())
                 .localOrShuffleGrouping("parse");
 
         Fields furl = new Fields("url");
