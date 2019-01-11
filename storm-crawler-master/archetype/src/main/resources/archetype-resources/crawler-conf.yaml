@@ -95,3 +95,6 @@ config:
      - class: "org.apache.storm.metric.LoggingMetricsConsumer"
        parallelism.hint: 1
 
+
+  # TIKA Parser
+  jsoup.treat.non.html.as.error: false

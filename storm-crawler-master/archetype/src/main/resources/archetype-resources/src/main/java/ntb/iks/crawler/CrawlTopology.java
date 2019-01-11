@@ -26,11 +26,15 @@ import com.digitalpebble.stormcrawler.bolt.FeedParserBolt;
 import com.digitalpebble.stormcrawler.indexing.StdOutIndexer;
 import com.digitalpebble.stormcrawler.persistence.MemoryStatusUpdater;
 import com.digitalpebble.stormcrawler.persistence.StdOutStatusUpdater;
+import com.digitalpebble.stormcrawler.persistence.MemoryStatusUpdater;
 import com.digitalpebble.stormcrawler.spout.MemorySpout;
 
 import ntb.iks.bolts.DataCollectorBolt;
 import org.apache.storm.topology.TopologyBuilder;
 import org.apache.storm.tuple.Fields;
+//Tika
+import com.digitalpebble.stormcrawler.tika.ParserBolt;
+import com.digitalpebble.stormcrawler.tika.RedirectionBolt;
 
 /**
  * Dummy topology to play with the spouts and bolts
@@ -45,7 +49,7 @@ public class CrawlTopology extends ConfigurableTopology {
     protected int run(String[] args) {
         TopologyBuilder builder = new TopologyBuilder();
 
-        String[] testURLs = new String[] { "https://www.gaultmillau.ch/restaurants", "http://www.ristoranteoldtimer.ch/speisekarte" };
+        String[] testURLs = new String[] { "http://www.valentinos-chur.ch/", "http://www.ristoranteoldtimer.ch/" };
 
         builder.setSpout("spout", new MemorySpout(testURLs));
 
@@ -66,7 +70,24 @@ public class CrawlTopology extends ConfigurableTopology {
 
         // use DataCollector for later indexing
         builder.setBolt("index", new StdOutIndexer())
+        //TIKA Parser
+
+        //builder.setBolt("jsoup", new JSoupParserBolt()).localOrShuffleGrouping(
+        //        "sitemap");
+
+        builder.setBolt("shunt", new RedirectionBolt())
                 .localOrShuffleGrouping("parse");
+
+        builder.setBolt("tika", new ParserBolt())
+                .localOrShuffleGrouping("shunt", "tika");
+
+        //builder.setBolt("indexer", new IndexingBolt(), numWorkers)
+        //        .localOrShuffleGrouping("shunt").localOrShuffleGrouping("tika");
+
+        //TIKA Parser
+
+        builder.setBolt("index", new StdOutIndexer())
+                .localOrShuffleGrouping("shunt").localOrShuffleGrouping("tika");
 
         Fields furl = new Fields("url");
 
@@ -77,6 +98,8 @@ public class CrawlTopology extends ConfigurableTopology {
                 .fieldsGrouping("sitemap", Constants.StatusStreamName, furl)
                 .fieldsGrouping("feeds", Constants.StatusStreamName, furl)
                 .fieldsGrouping("parse", Constants.StatusStreamName, furl)
+               // .fieldsGrouping("shunt", Constants.StatusStreamName, furl)
+               // .fieldsGrouping("tika", Constants.StatusStreamName, furl)
                 .fieldsGrouping("index", Constants.StatusStreamName, furl);
 
         return submit("crawl", conf, builder);
