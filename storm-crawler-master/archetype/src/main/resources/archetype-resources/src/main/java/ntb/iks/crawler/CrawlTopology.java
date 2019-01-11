@@ -24,10 +24,11 @@ import com.digitalpebble.stormcrawler.bolt.SiteMapParserBolt;
 import com.digitalpebble.stormcrawler.bolt.URLPartitionerBolt;
 import com.digitalpebble.stormcrawler.bolt.FeedParserBolt;
 import com.digitalpebble.stormcrawler.indexing.StdOutIndexer;
+import com.digitalpebble.stormcrawler.persistence.MemoryStatusUpdater;
 import com.digitalpebble.stormcrawler.persistence.StdOutStatusUpdater;
 import com.digitalpebble.stormcrawler.spout.MemorySpout;
 
-import ntb.iks.bolts.StdOutContentIndexer;
+import ntb.iks.bolts.DataCollectorBolt;
 import org.apache.storm.topology.TopologyBuilder;
 import org.apache.storm.tuple.Fields;
 
@@ -63,13 +64,15 @@ public class CrawlTopology extends ConfigurableTopology {
         builder.setBolt("parse", new JSoupParserBolt())
                 .localOrShuffleGrouping("feeds");
 
-        builder.setBolt("index", new StdOutContentIndexer())
+        // use DataCollector for later indexing
+        builder.setBolt("index", new StdOutIndexer())
                 .localOrShuffleGrouping("parse");
 
         Fields furl = new Fields("url");
 
         // can also use MemoryStatusUpdater for simple recursive crawls
-        builder.setBolt("status", new StdOutStatusUpdater())
+        // StdOutStatusUpdater
+        builder.setBolt("status", new MemoryStatusUpdater())
                 .fieldsGrouping("fetch", Constants.StatusStreamName, furl)
                 .fieldsGrouping("sitemap", Constants.StatusStreamName, furl)
                 .fieldsGrouping("feeds", Constants.StatusStreamName, furl)
