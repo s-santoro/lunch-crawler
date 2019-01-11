@@ -49,7 +49,7 @@ public class CrawlTopology extends ConfigurableTopology {
     protected int run(String[] args) {
         TopologyBuilder builder = new TopologyBuilder();
 
-        String[] testURLs = new String[] { "http://www.valentinos-chur.ch/", "http://www.ristoranteoldtimer.ch/" };
+        String[] testURLs = new String[] { "http://www.valentinos-chur.ch/" };
 
         builder.setSpout("spout", new MemorySpout(testURLs));
 
@@ -68,23 +68,11 @@ public class CrawlTopology extends ConfigurableTopology {
         builder.setBolt("parse", new JSoupParserBolt())
                 .localOrShuffleGrouping("feeds");
 
-        // use DataCollector for later indexing
-        builder.setBolt("index", new StdOutIndexer())
-        //TIKA Parser
-
-        //builder.setBolt("jsoup", new JSoupParserBolt()).localOrShuffleGrouping(
-        //        "sitemap");
-
         builder.setBolt("shunt", new RedirectionBolt())
                 .localOrShuffleGrouping("parse");
 
         builder.setBolt("tika", new ParserBolt())
                 .localOrShuffleGrouping("shunt", "tika");
-
-        //builder.setBolt("indexer", new IndexingBolt(), numWorkers)
-        //        .localOrShuffleGrouping("shunt").localOrShuffleGrouping("tika");
-
-        //TIKA Parser
 
         builder.setBolt("index", new StdOutIndexer())
                 .localOrShuffleGrouping("shunt").localOrShuffleGrouping("tika");
