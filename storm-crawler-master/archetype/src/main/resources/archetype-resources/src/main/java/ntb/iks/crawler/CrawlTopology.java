@@ -25,11 +25,9 @@ import com.digitalpebble.stormcrawler.bolt.URLPartitionerBolt;
 import com.digitalpebble.stormcrawler.bolt.FeedParserBolt;
 import com.digitalpebble.stormcrawler.indexing.StdOutIndexer;
 import com.digitalpebble.stormcrawler.persistence.MemoryStatusUpdater;
-import com.digitalpebble.stormcrawler.persistence.StdOutStatusUpdater;
-import com.digitalpebble.stormcrawler.persistence.MemoryStatusUpdater;
 import com.digitalpebble.stormcrawler.spout.MemorySpout;
 
-import ntb.iks.bolts.DataCollectorBolt;
+import ntb.iks.spouts.FileReaderSpouts;
 import org.apache.storm.topology.TopologyBuilder;
 import org.apache.storm.tuple.Fields;
 
@@ -46,7 +44,10 @@ public class CrawlTopology extends ConfigurableTopology {
     protected int run(String[] args) {
         TopologyBuilder builder = new TopologyBuilder();
 
-        String[] testURLs = new String[] { "http://www.valentinos-chur.ch/" };
+        String seedPath = "/topology/Seed_merged.txt";
+        FileReaderSpouts fileReaderSpouts = new FileReaderSpouts(seedPath);
+        String[] testURLs = fileReaderSpouts.getUrls();
+        //String[] testURLs = new String[] { "http://www.valentinos-chur.ch/" };
 
         builder.setSpout("spout", new MemorySpout(testURLs));
 
