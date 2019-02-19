@@ -46,7 +46,7 @@ public class CrawlTopology extends ConfigurableTopology {
     protected int run(String[] args) {
         TopologyBuilder builder = new TopologyBuilder();
 
-        String[] testURLs = new String[] { "http://www.valentinos-chur.ch/", "http://www.ristoranteoldtimer.ch/" };
+        String[] testURLs = new String[] { "http://www.valentinos-chur.ch/" };
 
         builder.setSpout("spout", new MemorySpout(testURLs));
 
