@@ -27,7 +27,7 @@ import com.digitalpebble.stormcrawler.indexing.StdOutIndexer;
 import com.digitalpebble.stormcrawler.persistence.MemoryStatusUpdater;
 import com.digitalpebble.stormcrawler.spout.MemorySpout;
 
-import ntb.iks.spouts.FileReaderSpouts;
+import ntb.iks.spouts.FileReaderSpout;
 import org.apache.storm.topology.TopologyBuilder;
 import org.apache.storm.tuple.Fields;
 
@@ -45,7 +45,7 @@ public class CrawlTopology extends ConfigurableTopology {
         TopologyBuilder builder = new TopologyBuilder();
 
         String seedPath = "/topology/Seed_merged.txt";
-        FileReaderSpouts fileReaderSpouts = new FileReaderSpouts(seedPath);
+        FileReaderSpout fileReaderSpouts = new FileReaderSpout(seedPath);
         String[] testURLs = fileReaderSpouts.getUrls();
         //String[] testURLs = new String[] { "http://www.valentinos-chur.ch/" };
 
