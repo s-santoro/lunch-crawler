@@ -97,4 +97,4 @@ config:
 
 
   # TIKA Parser
-  jsoup.treat.non.html.as.error: false
+  jsoup.treat.non.html.as.error: true
