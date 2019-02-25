@@ -25,16 +25,22 @@ import com.digitalpebble.stormcrawler.bolt.URLPartitionerBolt;
 import com.digitalpebble.stormcrawler.bolt.FeedParserBolt;
 import com.digitalpebble.stormcrawler.indexing.StdOutIndexer;
 import com.digitalpebble.stormcrawler.persistence.MemoryStatusUpdater;
+import com.digitalpebble.stormcrawler.spout.FileSpout;
 import com.digitalpebble.stormcrawler.spout.MemorySpout;
 
 import ntb.iks.spouts.FileReaderSpout;
 import org.apache.storm.topology.TopologyBuilder;
 import org.apache.storm.tuple.Fields;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Dummy topology to play with the spouts and bolts
  */
 public class CrawlTopology extends ConfigurableTopology {
+
+    private static final Logger LOG = LoggerFactory
+            .getLogger(MemorySpout.class);
 
     public static void main(String[] args) throws Exception {
         ConfigurableTopology.start(new CrawlTopology(), args);
@@ -42,12 +48,16 @@ public class CrawlTopology extends ConfigurableTopology {
 
     @Override
     protected int run(String[] args) {
-        TopologyBuilder builder = new TopologyBuilder();
 
         String seedPath = "/topology/Seed_merged.txt";
         FileReaderSpout fileReaderSpouts = new FileReaderSpout(seedPath);
         String[] testURLs = fileReaderSpouts.getUrls();
+        LOG.info("-------- files loaded: ", testURLs);
         //String[] testURLs = new String[] { "http://www.valentinos-chur.ch/" };
+
+        TopologyBuilder builder = new TopologyBuilder();
+
+        //builder.setSpout("file", new FileSpout(seedPath, "", false));
 
         builder.setSpout("spout", new MemorySpout(testURLs));
 
