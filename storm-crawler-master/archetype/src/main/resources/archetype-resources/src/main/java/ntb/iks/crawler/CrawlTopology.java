@@ -28,6 +28,7 @@ import com.digitalpebble.stormcrawler.persistence.MemoryStatusUpdater;
 import com.digitalpebble.stormcrawler.spout.FileSpout;
 import com.digitalpebble.stormcrawler.spout.MemorySpout;
 
+import ntb.iks.bolts.OutputFileWriter;
 import org.apache.storm.topology.TopologyBuilder;
 import org.apache.storm.tuple.Fields;
 import org.slf4j.Logger;
@@ -73,7 +74,7 @@ public class CrawlTopology extends ConfigurableTopology {
         builder.setBolt("parse", new JSoupParserBolt())
                 .localOrShuffleGrouping("feeds");
 
-        builder.setBolt("index", new StdOutIndexer())
+        builder.setBolt("index", new OutputFileWriter())
                 .localOrShuffleGrouping("parse");
 
         Fields furl = new Fields("url");
