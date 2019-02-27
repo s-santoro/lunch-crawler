@@ -11,8 +11,10 @@ import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 
 import com.digitalpebble.stormcrawler.Metadata;
+import com.digitalpebble.stormcrawler.indexing.AbstractIndexerBolt;
 import com.digitalpebble.stormcrawler.persistence.Status;
 import java.io.*;
+import java.nio.charset.Charset;
 
 
 /**
@@ -34,7 +36,7 @@ public class OutputFileWriter extends AbstractIndexerBolt {
     @Override
     public void execute(Tuple tuple) {
         String url = tuple.getStringByField("url");
-
+        String text = tuple.getStringByField("text");
         // Distinguish the value used for indexing
         // from the one used for the status
         String normalisedurl = valueForURL(tuple);
@@ -51,10 +53,10 @@ public class OutputFileWriter extends AbstractIndexerBolt {
             _collector.ack(tuple);
             return;
         }
-
+        
         // display text of the document?
         if (fieldNameForText() != null) {
-            String text = tuple.getStringByField("text");
+            
             System.out.println(fieldNameForText() + "\t" + trimValue(text));
         }
 
@@ -96,8 +98,10 @@ public class OutputFileWriter extends AbstractIndexerBolt {
         try {
             out = new PrintWriter(new BufferedWriter(new FileWriter(filename, true)));
             out.println("{");
-            out.println('"URL": '+ url +',');
-            out.println('"content:" '+content);
+            out.println("\"url\": \""+ url +"\",");
+            out.println("\"meta\": \""+ metadata +"\",");
+            out.println("\"text: \""+text+ "\"");
+            //out.println("\"content: \""+content+ "\"");
             out.println("}");
         }catch (IOException e) {
             System.err.println(e);
