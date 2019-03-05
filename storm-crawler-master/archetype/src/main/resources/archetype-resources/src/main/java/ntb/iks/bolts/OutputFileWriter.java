@@ -100,8 +100,8 @@ public class OutputFileWriter extends AbstractIndexerBolt {
             out.println("{");
             out.println("\"url\": \""+ url +"\",");
             out.println("\"meta\": \""+ metadata +"\",");
-            out.println("\"text: \""+text+ "\"");
-            //out.println("\"content: \""+content+ "\"");
+            out.println("\"text\": \""+text+ "\",");
+            out.println("\"content\": \""+content+ "\"");
             out.println("}");
         }catch (IOException e) {
             System.err.println(e);
