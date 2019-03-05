@@ -9,6 +9,7 @@ import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
+import org.json.simple.JSONObject;
 
 import com.digitalpebble.stormcrawler.Metadata;
 import com.digitalpebble.stormcrawler.indexing.AbstractIndexerBolt;
@@ -16,6 +17,11 @@ import com.digitalpebble.stormcrawler.persistence.Status;
 import java.io.*;
 import java.nio.charset.Charset;
 
+
+// LANGUAGE DETECTION
+import java.io.IOException;
+import org.apache.tika.language.*;
+//
 
 /**
  * Indexer which generates json-files with keys: "URL" and "Content"
@@ -33,7 +39,8 @@ public class OutputFileWriter extends AbstractIndexerBolt {
         _collector = collector;
     }
 
-    @Override
+    @SuppressWarnings("deprecation")
+	@Override
     public void execute(Tuple tuple) {
         String url = tuple.getStringByField("url");
         String text = tuple.getStringByField("text");
@@ -82,38 +89,39 @@ public class OutputFileWriter extends AbstractIndexerBolt {
         // BA-CODE: Create Output-JSON-Files  and write them
         byte[] binary = tuple.getBinaryByField("content");
         String content = new String(binary, Charset.defaultCharset());
-        // Create File
-        String filenameURL = url.replaceAll("[^a-zA-Z0-9\\-]", "_");
-        String filename = "/topology/Output/" + filenameURL + ".json";
-        File file = new File(filename);
-        file.getParentFile().mkdirs();
-        try {
-            file.createNewFile();
-        } catch (IOException e) {
-            e.printStackTrace();
+        //Language Detection
+        LanguageIdentifier object = new LanguageIdentifier(text);
+        if(object.getLanguage().equals("de")) {
+        	String filenameURL = url.replaceAll("[^a-zA-Z0-9\\-]", "_");
+            String filename = "/topology/Output/" + filenameURL + ".json";
+            // Create JSON     
+            JSONObject json = new JSONObject();
+            json.put("date", metadata.getFirstValue("date"));
+            json.put("encoding", metadata.getFirstValue("parse.Content-Encoding"));
+            json.put("title", metadata.getFirstValue("parse.title"));
+            json.put("url", url);   
+            json.put("text", text);
+            json.put("content", content);
+            //
+            // Write JSON to File
+            FileWriter file = null;
+            try {
+    			file = new FileWriter(filename);
+    			file.write(json.toJSONString());
+    		} catch (IOException e) {
+    			e.printStackTrace();
+    		}finally {
+    			try {
+    				file.flush();
+    				file.close();
+    			} catch (IOException e) {
+    				e.printStackTrace();
+    			}
+    		}
         }
-
-        // Write File
-        PrintWriter out = null;
-        try {
-            out = new PrintWriter(new BufferedWriter(new FileWriter(filename, true)));
-            out.println("{");
-            out.println("\"url\": \""+ url +"\",");
-            out.println("\"meta\": \""+ metadata +"\",");
-            out.println("\"text\": \""+text+ "\",");
-            out.println("\"content\": \""+content+ "\"");
-            out.println("}");
-        }catch (IOException e) {
-            System.err.println(e);
-        }finally{
-            if(out != null){
-                out.close();
-            }
-        }
         //
         //
         //
-
         _collector.emit(StatusStreamName, tuple, new Values(url, metadata,
                 Status.FETCHED));
         _collector.ack(tuple);
