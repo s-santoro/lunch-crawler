@@ -5,14 +5,14 @@
       "name": "BasicURLFilter",
       "params": {
         "maxPathRepetition": 3,
-        "maxLength": 1024
+        "maxLength": 255
       }
     },
     {
       "class": "com.digitalpebble.stormcrawler.filtering.depth.MaxDepthFilter",
       "name": "MaxDepthFilter",
       "params": {
-        "maxDepth": 5
+        "maxDepth": 3
       }
     },
     {

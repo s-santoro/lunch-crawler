@@ -5,6 +5,7 @@ import static com.digitalpebble.stormcrawler.Constants.StatusStreamName;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.storm.shade.org.apache.commons.lang.RandomStringUtils;
 import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.tuple.Tuple;
@@ -92,7 +93,13 @@ public class OutputFileWriter extends AbstractIndexerBolt {
         //Language Detection
         LanguageIdentifier object = new LanguageIdentifier(text);
         if(object.getLanguage().equals("de")) {
-        	String filenameURL = url.replaceAll("[^a-zA-Z0-9\\-]", "_");
+        	String filenameURL = url.replaceAll("[^a-zA-Z0-9\\-]", "");
+        	filenameURL = filenameURL.replaceAll("https", "");
+        	filenameURL = filenameURL.replaceAll("http", "");
+        	filenameURL = filenameURL.replaceAll("www", "");
+        	if(filenameURL.length()>150) {
+        		filenameURL = filenameURL.substring(0, 20)+"_"+RandomStringUtils.randomAlphanumeric(4);
+        	}
             String filename = "/topology/Output/" + filenameURL + ".json";
             // Create JSON     
             JSONObject json = new JSONObject();

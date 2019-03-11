@@ -28,6 +28,7 @@ import com.digitalpebble.stormcrawler.persistence.MemoryStatusUpdater;
 import com.digitalpebble.stormcrawler.spout.FileSpout;
 import com.digitalpebble.stormcrawler.spout.MemorySpout;
 
+import ntb.iks.bolts.CustomMemoryStatusUpdater;
 import ntb.iks.bolts.OutputFileWriter;
 import org.apache.storm.topology.TopologyBuilder;
 import org.apache.storm.tuple.Fields;
