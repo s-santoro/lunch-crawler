@@ -3,6 +3,9 @@
 # Compiled class file
 *.class
 
+# MAC
+.DS_Store
+
 # Log file
 *.log
 
@@ -27,6 +30,8 @@ hs_err_pid*
 # JSON Files
 neg
 pos
+reduced_neg
+reduced_pos
 
 # CSV Output
 data
