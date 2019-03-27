@@ -30,6 +30,7 @@ hs_err_pid*
 # JSON Files
 neg
 pos
+link
 reduced_neg
 reduced_pos
 
