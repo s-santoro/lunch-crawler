@@ -3,7 +3,7 @@
 
 # Imports
 from luigi.contrib.spark import PySparkTask
-from luigi.parameter import IntParameter, DateSecondParameter
+from luigi.parameter import IntParameter
 from luigi import LocalTarget, Task, WrapperTask
 from luigi.format import UTF8
 import datetime
@@ -11,48 +11,72 @@ import pandas as pd
 import re
 from nltk.stem.cistem import Cistem
 from Importer import Importer
+from configs.Configurations import Configurations
 
 
 class Preprocessor(Task):
 
     # Date for Output-File prefix
     from datetime import date
-    date = DateSecondParameter(default=datetime.datetime.now())
-    
+    date = datetime.datetime.now()
+    configId = IntParameter(default=0)
+
     # Method to declare the Output-File
     def output(self):
         prefix = self.date.strftime("%Y-%m-%dT%H%M%S")
-        return LocalTarget("../data/%s_Preprocessor_out.csv" % prefix, format=UTF8)
+        return LocalTarget("../data/%s_configID_%s_Preprocessor_out.csv" % (prefix, self.configId), format=UTF8)
     
     # Method to define the required Task (Importer)
     def requires(self):
-        return Importer()
+        return Importer(self.configId)
 
 
     # Preprocess the imported Data
     def run(self):
+        # use configID from commandline
+        configs = Configurations().configs[self.configId]
+
         df = pd.read_csv(self.input().path)
         output_df = pd.DataFrame(columns=('text', 'url', 'title', 'class'))
-        
-        # Preprocessing
+
         for index, document in df.iterrows():
             # Text Preprocessing
-            text = self.toLowerCase(str(document.text))
-            text = self.priceTagger(text)
-            text = self.removeSpecialCharacters(text)
-            text = self.removeSingleCharacters(text)
-            text = self.removeMultiSpaces(text)
-            text = self.stemText(text)
-            text = self.removeStopWords(text)
+            if configs.get("textToLowerCase"):
+                text = self.toLowerCase(str(document.text))
+            if configs.get("textReplaceUmlaut"):
+                text = self.replaceUmlaut(text)
+            if configs.get("textPriceTagger"):
+                text = self.priceTagger(text)
+            if configs.get("textRemoveSpecialCharacters"):
+                text = self.removeSpecialCharacters(text)
+            if configs.get("textRemoveSingleCharacters"):
+                text = self.removeSingleCharacters(text)
+            if configs.get("textRemoveMultiSpaces"):
+                text = self.removeMultiSpaces(text)
+            if configs.get("textStemText"):
+                text = self.stemText(text)
+            if configs.get("textRemoveStopWords"):
+                text = self.removeStopWords(text)
             
             # Title Preprocessing
-            title = self.toLowerCase(str(document.title))
-            title = self.replaceUmlaut(title)
-            title = self.removeSpecialCharacters(title)
-            title = self.removeSingleCharacters(title)
-            title = self.removeMultiSpaces(title)
-            
-            #Write rows for Output-File
+            if configs.get("titleToLowerCase"):
+                title = self.toLowerCase(str(document.title))
+            if configs.get("titleReplaceUmlaut"):
+                title = self.replaceUmlaut(title)
+            if configs.get("titlePriceTagger"):
+                title = self.priceTagger(title)
+            if configs.get("titleRemoveSpecialCharacters"):
+                title = self.removeSpecialCharacters(title)
+            if configs.get("titleRemoveSingleCharacters"):
+                title = self.removeSingleCharacters(title)
+            if configs.get("titleRemoveMultiSpaces"):
+                title = self.removeMultiSpaces(title)
+            if configs.get("titleStemText"):
+                title = self.stemText(title)
+            if configs.get("titleRemoveStopWords"):
+                title = self.removeStopWords(title)
+
+            # Write rows for Output-File
             row = [text, document.url, title, document.Class]
             output_df.loc[index] = row
         
