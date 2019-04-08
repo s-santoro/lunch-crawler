@@ -3,7 +3,7 @@
 
 # Imports
 from luigi.contrib.spark import PySparkTask
-from luigi.parameter import IntParameter, DateSecondParameter
+from luigi.parameter import IntParameter
 from luigi.format import UTF8
 from luigi import LocalTarget, Task, WrapperTask
 import datetime
@@ -13,30 +13,38 @@ import re
 import matplotlib.pyplot as plt
 from nltk.stem.cistem import Cistem
 from Preprocessor import Preprocessor
+from configs.Configurations import Configurations
 
 
 class RulebasedClassifier(Task):
 
     # Date for Output-File prefix
     from datetime import date
-    date = DateSecondParameter(default=datetime.datetime.now())
+    date = datetime.datetime.now()
+    configId = IntParameter(default=0)
+
     # sum of rules must exceed the threshold for a positive classification
     threshold = 1
+    keyAmount = 1
+    keyValTreshold = 1
     printPosCounter = 0
     printNegCounter = 0
 
     # Method to declare the Output-File
     def output(self):
         prefix = self.date.strftime("%Y-%m-%dT%H%M%S")
-        return LocalTarget("../data/%s_Classifier_out.csv" % prefix, format=UTF8)
+        return LocalTarget("../data/%s_configID_%s_Classifier_out.csv" % (prefix, self.configId), format=UTF8)
 
     # Method to define the required Task (Preprocessor)
     def requires(self):
-        return Preprocessor()
+        return Preprocessor(self.configId)
 
 
     # Classify the imported Data
     def run(self):
+        # use configID from commandline
+        configs = Configurations().configs[self.configId]
+
         df = pd.read_csv(self.input().path)
         output_df = pd.DataFrame(columns=('specified', 'predicted'))
         output_df['specified'] = df['class'].values
@@ -96,7 +104,7 @@ class RulebasedClassifier(Task):
         foodSet = set(whitelistWords)
         foodDict = dict.fromkeys(foodSet, 0)
         # split text which is a string in list presentation with seperator=' in order to get each element
-        # ['elem1', 'elem2', 'elem3']
+        # ['elem1', 'elem2', 'elem3']
         for word in text.split("'"):
             # check if word is in foodSet
             if word in foodSet:
@@ -107,22 +115,19 @@ class RulebasedClassifier(Task):
 
     def evalHistValues(self, dictionary, classValue):
 
-        keyAmount = 1
-        keyValTreshold = 1
-
         temp = ""
         hasValues = False
         hasPosValues = False
         hasNegValues = False
         for key in dictionary:
-            if dictionary[key] >= keyValTreshold:
+            if dictionary[key] >= self.keyValTreshold:
                 hasValues = True
                 temp += ("key: %s\t\tvalue: %s\n"%(key, dictionary[key]))
 
-        if hasValues and classValue == 0 and len(temp.split("\n")) >= keyAmount:
+        if hasValues and classValue == 0 and len(temp.split("\n")) >= self.keyAmount:
             hasNegValues = True
             self.printNegCounter += 1
-        if hasValues and classValue == 1 and len(temp.split("\n")) >= keyAmount:
+        if hasValues and classValue == 1 and len(temp.split("\n")) >= self.keyAmount:
             hasPosValues = True
             self.printPosCounter += 1
         #print(temp)

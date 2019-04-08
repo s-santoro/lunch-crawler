@@ -3,27 +3,32 @@
 
 # Imports
 from luigi.contrib.spark import PySparkTask
-from luigi.parameter import IntParameter, DateSecondParameter
+from luigi.parameter import IntParameter
 from luigi import LocalTarget, Task, WrapperTask
 from luigi.format import UTF8
 from os import listdir
 import pandas as pd
 import datetime
+from configs.Configurations import Configurations
 
 
 class Importer(Task):
     
     # Date for Output-File prefix
     from datetime import date
-    date = DateSecondParameter(default=datetime.datetime.now())
+    date = datetime.datetime.now()
+    configId = IntParameter(default=0)
+
 
     # Method to declare the Output-File
     def output(self):
         prefix = self.date.strftime("%Y-%m-%dT%H%M%S")
-        return LocalTarget("../data/%s_Importer_out.csv" % prefix, format=UTF8)
+        return LocalTarget("../data/%s_configID_%s_Importer_out.csv" % (prefix, self.configId), format=UTF8)
     
     # Method to generate the Output-File
     def run(self):
+        # use configID from commandline
+        configs = Configurations().configs[self.configId]
 
         # Load all negative Files into Array
         neg_filenames = [f for f in listdir("../files/neg")]
