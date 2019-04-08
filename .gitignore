@@ -29,11 +29,14 @@ hs_err_pid*
 
 # JSON Files
 *.json
+
+# folders
 neg
 pos
 link
 reduced_neg
 reduced_pos
+__pycache__
 
 # CSV Output
 data

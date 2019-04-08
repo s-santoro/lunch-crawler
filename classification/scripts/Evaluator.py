@@ -1,30 +1,27 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
-
-
 # Imports
 from luigi.contrib.spark import PySparkTask
 from luigi.parameter import IntParameter, DateSecondParameter
-from luigi.format import UTF8
 from luigi import LocalTarget, Task, WrapperTask
+from luigi.format import UTF8
 import datetime
 import pandas as pd
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 from RulebasedClassifier import RulebasedClassifier
-#get_ipython().magic(u'run RulebasedClassifier.ipynb')
+
 
 class Evaluator(Task):
 
     # Date for Output-File prefix
-    from datetime import date, timedelta
+    from datetime import date
     date = DateSecondParameter(default=datetime.datetime.now())
     
     # Method to declare the Output-File
     def output(self):
         prefix = self.date.strftime("%Y-%m-%dT%H%M%S")
-        return LocalTarget("data/%s_Evaluator_out.csv" % prefix, format=UTF8)
+        return LocalTarget("../data/%s_Evaluator_out.csv" % prefix, format=UTF8)
     
     # Method to define the required Task (Preprocessor)
     def requires(self):
@@ -57,13 +54,6 @@ class Evaluator(Task):
                 tn+=1
         
         return tp, fp, fn, tn
-            
-#evaluator = Evaluator()
-#evaluator.run()
-
-
-# In[ ]:
-
 
 
 

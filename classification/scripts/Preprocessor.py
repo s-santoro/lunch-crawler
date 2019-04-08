@@ -1,32 +1,28 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
-
-
 # Imports
 from luigi.contrib.spark import PySparkTask
 from luigi.parameter import IntParameter, DateSecondParameter
-from luigi.format import UTF8
 from luigi import LocalTarget, Task, WrapperTask
+from luigi.format import UTF8
 import datetime
 import pandas as pd
 import re
 from nltk.stem.cistem import Cistem
 from Importer import Importer
-#get_ipython().magic(u'run Importer.ipynb')
 
 
 class Preprocessor(Task):
 
     # Date for Output-File prefix
-    from datetime import date, timedelta
+    from datetime import date
     date = DateSecondParameter(default=datetime.datetime.now())
     
     # Method to declare the Output-File
     def output(self):
         prefix = self.date.strftime("%Y-%m-%dT%H%M%S")
-        return LocalTarget("data/%s_Preprocessor_out.csv" % prefix, format=UTF8)
+        return LocalTarget("../data/%s_Preprocessor_out.csv" % prefix, format=UTF8)
     
     # Method to define the required Task (Importer)
     def requires(self):
@@ -114,10 +110,14 @@ class Preprocessor(Task):
     def stemText(self, text):
         stemmer = Cistem()
         return [stemmer.stem(word) for word in text.split()]
+
+    def stemWord(self, word):
+        stemmer = Cistem()
+        return stemmer.stem(word)
     
     def removeStopWords(self, words):
         # use own stopword list
-        stop = pd.read_csv('stopwords_no_umlaute.txt', header=None)
+        stop = pd.read_csv('../stopwords_no_umlaute.txt', header=None)
         stop.columns = ['word']
         # convert list to set for word comparison
         stopwordSet = set(stop.word)
@@ -139,9 +139,6 @@ class Preprocessor(Task):
         text = re.sub(r'ü', 'u', text)
         return text
         
-
-#pre = Preprocessor()
-#pre.run()
 
 
 # Preis-Regex werden verwendet, um effektive Preise auf das Wort 'preis' zu mappen.
