@@ -99,7 +99,7 @@ class Preprocessor(Task):
         return text
         
     def removeSpecialCharacters(self, text):
-        return re.sub(r'[^éàèÉÀÈäöüÄÖÜa-zA-Z0-9]+', ' ', str(text))
+        return re.sub(r'[^éàèÉÀÈäöüÄÖÜa-zA-Z]+', ' ', str(text))
     
     def removeSingleCharacters(self, text):
         return re.sub(r'\s+[a-zA-Z]\s+', ' ', text)
@@ -162,3 +162,5 @@ class Preprocessor(Task):
 # ## Anpassungen
 # - Anpassung von Regex "preis" auf "priceentity", da diese mit hoher Wahrscheinlichkeit nicht vorkommt
 # 
+#pre = Preprocessor()
+#pre.run()

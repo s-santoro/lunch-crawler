@@ -8,10 +8,7 @@ from luigi.format import UTF8
 from luigi import LocalTarget, Task, WrapperTask
 import datetime
 import pandas as pd
-import numpy as np
-import re
-import matplotlib.pyplot as plt
-from nltk.stem.cistem import Cistem
+from sklearn.feature_extraction.text import CountVectorizer
 from Preprocessor import Preprocessor
 
 
@@ -41,9 +38,14 @@ class RulebasedClassifier(Task):
         output_df = pd.DataFrame(columns=('specified', 'predicted'))
         output_df['specified'] = df['class'].values
 
-        for index, document in df.iterrows():
-            value = self.runRules(document)
-            output_df['predicted'].iloc[index] = value
+        # Bag of Words Method
+        if(True):
+            output_df = self.runRulesBoW(df)
+        # Whitelisting and Price-Tagger Method
+        else:
+            for index, document in df.iterrows():
+                value = self.runRules(document)
+                output_df['predicted'].iloc[index] = value
 
         # show how many documents had white list entries
         # maybe for later eval-output interesting
@@ -54,6 +56,57 @@ class RulebasedClassifier(Task):
         # Write .csv-File
         with self.output().open("w") as out:
             output_df.to_csv(out, encoding="utf-8")
+
+    def runRulesBoW(self, data):
+        # Split Data into Train Files (for generating BoW) and Test Files
+        from sklearn.model_selection import train_test_split
+        trainData, testData, trainLabels, testLabels = train_test_split(data['text'].values, data['class'].values, test_size=0.5, random_state=0)
+        output_df = pd.DataFrame(columns=('specified', 'predicted'))
+        output_df['specified'] = testLabels
+        # Sort Train Data
+        posExamples = []
+        negExamples = []
+        for index in range(len(trainData)):
+            if trainLabels[index] == 1:
+                posExamples.append(trainData[index])
+            else:
+                negExamples.append(trainData[index])
+
+        # Create Bag of Words
+        posWords = self.BagOfWords(posExamples)
+        negWords = self.BagOfWords(negExamples)
+
+        # Filter for Words occuring in positive and negative Examples
+        for i in range(len(posWords)):
+            for j in range(len(negWords)):
+                if posWords[i] == negWords[j]:
+                    posWords[i] = 'remove'
+                    negWords[j] = 'remove'
+        while 'remove' in posWords: posWords.remove('remove')
+        while 'remove' in negWords: negWords.remove('remove')
+
+        # Classify
+        for index2 in range(len(testData)):
+            score = 0;
+            for word in posWords:
+                if word in testData[index2]:
+                    score = score + 1
+
+            for word in negWords:
+                if word in testData[index2]:
+                    score = score - 1
+            if score > 0:
+                output_df['predicted'].iloc[index2] = 1
+            else:
+                output_df['predicted'].iloc[index2] = 0
+
+        return output_df
+
+    def BagOfWords(self, data):
+        vectorizer = CountVectorizer(max_features=20, binary=True)
+        BagofWords = vectorizer.fit_transform(data).toarray()
+        features = vectorizer.get_feature_names()
+        return features
 
     def runRules(self, document):
         title = document.title
@@ -132,3 +185,8 @@ class RulebasedClassifier(Task):
         else:
             return 0
 
+
+
+
+#rb = RulebasedClassifier()
+#rb.run()
