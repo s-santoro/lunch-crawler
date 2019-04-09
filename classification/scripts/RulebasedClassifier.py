@@ -42,7 +42,7 @@ class RulebasedClassifier(Task):
         configs = Configurations().configs[self.configId]
 
         df = pd.read_csv(self.input().path)
-        output_df = pd.DataFrame(columns=('specified', 'predicted'))
+        output_df = pd.DataFrame(columns=('specified', 'predicted', 'url'))
         output_df['specified'] = df['class'].values
 
         # Bag of Words Method
@@ -53,6 +53,7 @@ class RulebasedClassifier(Task):
             for index, document in df.iterrows():
                 value = self.runCombinedRules(document)
                 output_df['predicted'].iloc[index] = value
+                output_df['url'].iloc[index] = df['url'].iloc[index]
 
         # show how many documents had white list entries
         # maybe for later eval-output interesting
@@ -74,7 +75,7 @@ class RulebasedClassifier(Task):
         trainData, testData, trainLabels, testLabels = train_test_split(data[dataParameter].values, data['class'].values,
                                                                         test_size=Configurations().configs[self.configId].get("testSizeSplit"),
                                                                         random_state=0)
-        output_df = pd.DataFrame(columns=('specified', 'predicted'))
+        output_df = pd.DataFrame(columns=('specified', 'predicted', 'url'))
         output_df['specified'] = testLabels
         # Sort Train Data
         posExamples = []
@@ -97,6 +98,7 @@ class RulebasedClassifier(Task):
         while 'remove' in negWords: negWords.remove('remove')
         # Classify
         for index2 in range(len(testData)):
+            output_df['url'].iloc[index2]=data['url'].iloc[index2]
             score = Configurations().configs[self.configId].get("decisionLimit")
             for word in posWords:
                 if word in testData[index2]:
