@@ -47,10 +47,10 @@ class RulebasedClassifier(Task):
         output_df['specified'] = df['class'].values
 
         # Bag of Words Method
-        if(True):
+        if configs.get("classifyBagOfWords"):
             output_df = self.runRulesBoW(df)
         # Whitelisting and Price-Tagger Method
-        else:
+        if configs.get("classifyCombinedRules"):
             for index, document in df.iterrows():
                 value = self.runRules(document)
                 output_df['predicted'].iloc[index] = value
@@ -67,8 +67,14 @@ class RulebasedClassifier(Task):
 
     def runRulesBoW(self, data):
         # Split Data into Train Files (for generating BoW) and Test Files
+        if Configurations().configs[self.configId].get("useText"):
+            dataParameter = "text"
+        else:
+            dataParameter = "title"
         from sklearn.model_selection import train_test_split
-        trainData, testData, trainLabels, testLabels = train_test_split(data['text'].values, data['class'].values, test_size=0.5, random_state=0)
+        trainData, testData, trainLabels, testLabels = train_test_split(data[dataParameter].values, data['class'].values,
+                                                                        test_size=Configurations().configs[self.configId].get("testSizeSplit"),
+                                                                        random_state=0)
         output_df = pd.DataFrame(columns=('specified', 'predicted'))
         output_df['specified'] = testLabels
         # Sort Train Data
@@ -79,11 +85,9 @@ class RulebasedClassifier(Task):
                 posExamples.append(trainData[index])
             else:
                 negExamples.append(trainData[index])
-
         # Create Bag of Words
         posWords = self.BagOfWords(posExamples)
         negWords = self.BagOfWords(negExamples)
-
         # Filter for Words occuring in positive and negative Examples
         for i in range(len(posWords)):
             for j in range(len(negWords)):
@@ -92,14 +96,12 @@ class RulebasedClassifier(Task):
                     negWords[j] = 'remove'
         while 'remove' in posWords: posWords.remove('remove')
         while 'remove' in negWords: negWords.remove('remove')
-
         # Classify
         for index2 in range(len(testData)):
-            score = 0;
+            score = Configurations().configs[self.configId].get("decisionLimit")
             for word in posWords:
                 if word in testData[index2]:
                     score = score + 1
-
             for word in negWords:
                 if word in testData[index2]:
                     score = score - 1
@@ -107,11 +109,10 @@ class RulebasedClassifier(Task):
                 output_df['predicted'].iloc[index2] = 1
             else:
                 output_df['predicted'].iloc[index2] = 0
-
         return output_df
 
     def BagOfWords(self, data):
-        vectorizer = CountVectorizer(max_features=20, binary=True)
+        vectorizer = CountVectorizer(max_features=Configurations().configs[self.configId].get("numberOfFeatures"), binary=True)
         BagofWords = vectorizer.fit_transform(data).toarray()
         features = vectorizer.get_feature_names()
         return features

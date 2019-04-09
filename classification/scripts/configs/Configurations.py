@@ -18,14 +18,22 @@ class Configurations:
             # title preprocessing
             "titleToLowerCase": True,
             "titleReplaceUmlaut": True,
-            "titlePriceTagger": False,
+            "titlePriceTagger": True,
             "titleRemoveSpecialCharacters": True,
             "titleRemoveSingleCharacters": True,
             "titleRemoveMultiSpaces": True,
             "titleStemText": True,
             "titleRemoveStopWords": True,
 
-            #
+            # Classify with Bag of Words
+            "classifyBagOfWords": True,
+            "useText": False,     # If False, use Title
+            "testSizeSplit": 0.7,
+            "numberOfFeatures": 3,
+            "decisionLimit": 0,
+
+            # Classify with combined Rules
+            "classifyCombinedRules": False
         },
         {
             # text preprocessing
@@ -47,5 +55,16 @@ class Configurations:
             "titleRemoveMultiSpaces": True,
             "titleStemText": True,
             "titleRemoveStopWords": True,
+
+            # Classify with Bag of Words
+            "classifyBagOfWords": False,
+            "useText": True,     # If False, use Title
+            "testSizeSplit": 0.5,
+            "numberOfFeatures": 50,
+            "decisionLimit": 0,
+
+
+            # Classify with combined Rules
+            "classifyCombinedRules": True
         }
     ]
