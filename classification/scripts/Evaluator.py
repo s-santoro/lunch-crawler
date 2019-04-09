@@ -62,9 +62,27 @@ class Evaluator(Task):
 
         evalReport = confMatrix+report+configOverview
 
+        values = self.calculateScore(df)
+        tp = values[0]
+        fp = values[1]
+        fn = values[2]
+        tn = values[3]
+        if (tp+fp) != 0:
+            precision = round(tp/(tp+fp), 2)
+        else:
+            precision = 0
+        if (tp+fn) != 0:
+            recall = round(tp/(tp+fn), 2)
+        else:
+            recall = 0
+        if (2*tp+fp+fn) != 0:
+            f1=round((2*tp)/(2*tp+fp+fn), 2)
+        else:
+            f1=0
+
         # write report to file
         prefix = self.date.strftime("%Y-%m-%dT%H%M%S")
-        filename = "../data/evaluation_report/%s_configID_%s_Evaluation_Report.txt" % (prefix, self.configId)
+        filename = "../data/evaluation_report/F1_%s_Pre_%s_Rec_%s_configID_%s_%s.txt" % (f1, precision, recall, self.configId, prefix)
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         f = open(filename, "w")
         f.write(evalReport)

@@ -41,6 +41,7 @@ class Preprocessor(Task):
 
         for index, document in df.iterrows():
             # Text Preprocessing
+            text = str(document.text)
             if configs.get("textToLowerCase"):
                 text = self.toLowerCase(str(document.text))
             if configs.get("textReplaceUmlaut"):
@@ -59,6 +60,7 @@ class Preprocessor(Task):
                 text = self.removeStopWords(text)
             
             # Title Preprocessing
+            title = str(document.title)
             if configs.get("titleToLowerCase"):
                 title = self.toLowerCase(str(document.title))
             if configs.get("titleReplaceUmlaut"):

@@ -21,7 +21,6 @@ class RulebasedClassifier(Task):
     configId = IntParameter(default=0)
 
     # sum of rules must exceed the threshold for a positive classification
-    threshold = 1
     keyAmount = 1
     keyValTreshold = 1
     printPosCounter = 0
@@ -48,11 +47,11 @@ class RulebasedClassifier(Task):
 
         # Bag of Words Method
         if configs.get("classifyBagOfWords"):
-            output_df = self.runRulesBoW(df)
+            output_df = self.runBoWRules(df)
         # Whitelisting and Price-Tagger Method
         if configs.get("classifyCombinedRules"):
             for index, document in df.iterrows():
-                value = self.runRules(document)
+                value = self.runCombinedRules(document)
                 output_df['predicted'].iloc[index] = value
 
         # show how many documents had white list entries
@@ -65,7 +64,7 @@ class RulebasedClassifier(Task):
         with self.output().open("w") as out:
             output_df.to_csv(out, encoding="utf-8")
 
-    def runRulesBoW(self, data):
+    def runBoWRules(self, data):
         # Split Data into Train Files (for generating BoW) and Test Files
         if Configurations().configs[self.configId].get("useText"):
             dataParameter = "text"
@@ -117,29 +116,27 @@ class RulebasedClassifier(Task):
         features = vectorizer.get_feature_names()
         return features
 
-    def runRules(self, document):
+    def runCombinedRules(self, document):
         title = document.title
         text = document.text
         appliedRules = []
         # check if title is a string
-        if type(title) is str:
+        if type(title) is str and Configurations().configs[self.configId].get("menuInTitle") == True:
             if Preprocessor().stemWord('menu') in title:
-                pass
-                #appliedRules.append(1)
+                appliedRules.append(1)
 
             if Preprocessor().stemWord('tagesmenu') in title:
-                pass
-                #appliedRules.append(1)
+                appliedRules.append(1)
 
         # check if text is a string
         if type(text) is str:
-            if Preprocessor().stemWord('priceentity') in text:
+            if Preprocessor().stemWord('priceentity') in text and Configurations().configs[self.configId].get("priceEntity") == True:
                 appliedRules.append(1)
-
-            appliedRules.append(self.whitelisting(text, document))
+            if Configurations().configs[self.configId].get("whiteList"):
+                appliedRules.append(self.whitelisting(text, document))
 
         # check if threshold exceeded
-        if appliedRules.count(1) > self.threshold:
+        if appliedRules.count(1) > 0:
             return 1
         else:
             return 0
@@ -168,7 +165,6 @@ class RulebasedClassifier(Task):
         return self.evalHistValues(foodDict, document["class"])
 
     def evalHistValues(self, dictionary, classValue):
-
         temp = ""
         hasValues = False
         hasPosValues = False
@@ -184,15 +180,7 @@ class RulebasedClassifier(Task):
         if hasValues and classValue == 1 and len(temp.split("\n")) >= self.keyAmount:
             hasPosValues = True
             self.printPosCounter += 1
-        #print(temp)
-        #print("pos: %s\tneg: %s"%(hasPosValues, hasNegValues))
         if hasPosValues:
             return 1
         else:
             return 0
-
-
-
-
-#rb = RulebasedClassifier()
-#rb.run()
