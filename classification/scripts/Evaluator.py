@@ -7,6 +7,7 @@ from luigi.parameter import IntParameter
 from luigi import LocalTarget, Task, WrapperTask
 from luigi.format import UTF8
 import datetime
+import os
 import pandas as pd
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 from RulebasedClassifier import RulebasedClassifier
@@ -36,16 +37,39 @@ class Evaluator(Task):
         configs = Configurations().configs[self.configId]
 
         df = pd.read_csv(self.input().path)
-        print('TP: %s\tFP: %s\nFN: %s\tTN: %s'% self.calculateScore(df))
-        print(classification_report(df['specified'].values, df['predicted'].values))
+
+        confMatrix = "------------------------------------------------------\n"
+        confMatrix += "Pipeline executed on: %s\n" % self.date
+        confMatrix += "Confusion Matrix\n"
+        confMatrix += '\tTP: %s\tFP: %s\n\tFN: %s\tTN: %s\n'% self.calculateScore(df)
+        confMatrix += "\n"
+
+        report = "Classification Report\n"
+        report += classification_report(df['specified'].values, df['predicted'].values)
+        report += "\n"
 
         configOverview = "------------------------------------------------------\n"
-        configOverview += "configID:%s\n" % self.configId
+        configOverview += "Pipeline Configuration\n"
+        configOverview += "configID: %s\n" % self.configId
         for key in configs:
-            configOverview += "\t%s:\t\t\t\t%s\n" % (key, configs.get(key))
+            configOverview += "\t%s:" % key
+            x = len(str(key))
+            while x < 35:
+                x += 1
+                configOverview += " "
+            configOverview += "%s\n" % configs.get(key)
         configOverview += "------------------------------------------------------\n"
-        print(configOverview)
-        
+
+        evalReport = confMatrix+report+configOverview
+
+        # write report to file
+        prefix = self.date.strftime("%Y-%m-%dT%H%M%S")
+        filename = "../data/evaluation_report/%s_configID_%s_Evaluation_Report.txt" % (prefix, self.configId)
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        f = open(filename, "w")
+        f.write(evalReport)
+        f.close()
+
         # Write .csv-File
         with self.output().open("w") as out:
             df.to_csv(out, encoding="utf-8")
