@@ -1,0 +1,8 @@
+# all necessary packages to run pipeline
+
+sudo apt-get install python3-pip 
+
+pip3 install luigi
+pip3 install pandas
+pip3 install sklearn
+pip3 install nltk
