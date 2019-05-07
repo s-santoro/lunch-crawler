@@ -55,7 +55,7 @@ public class CrawlTopology extends ConfigurableTopology {
 
         TopologyBuilder builder = new TopologyBuilder();
 
-        builder.setSpout("file", new FileSpout(seedPath, "test.txt", false));
+        builder.setSpout("file", new FileSpout(seedPath, "seed.txt", false));
 
         builder.setSpout("spout", new MemorySpout(testURLs));
 
