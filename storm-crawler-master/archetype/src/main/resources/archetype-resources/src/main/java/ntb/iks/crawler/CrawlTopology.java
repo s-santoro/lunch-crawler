@@ -51,7 +51,7 @@ public class CrawlTopology extends ConfigurableTopology {
         //FileReaderSpout fileReaderSpouts = new FileReaderSpout(seedPath);
         //String[] testURLs = fileReaderSpouts.getUrls();
         //LOG.info("-------- files loaded: ", testURLs);
-        String[] testURLs = new String[] { "http://www.valentinos-chur.ch/" };
+        String[] testURLs = new String[] { "" };
 
         TopologyBuilder builder = new TopologyBuilder();
 

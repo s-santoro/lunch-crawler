@@ -20,8 +20,16 @@ import java.nio.charset.Charset;
 
 
 // LANGUAGE DETECTION
-import java.io.IOException;
-import org.apache.tika.language.*;
+//import java.io.IOException;
+//import org.apache.tika.language.*;
+//import org.apache.tika.language.detect.LanguageDetector;
+
+import java.util.List;
+import static java.util.Arrays.asList;
+
+import com.github.pemistahl.lingua.api.LanguageDetectorBuilder;
+import com.github.pemistahl.lingua.api.LanguageDetector;
+import com.github.pemistahl.lingua.api.Language;
 //
 
 /**
@@ -91,8 +99,11 @@ public class OutputFileWriter extends AbstractIndexerBolt {
         byte[] binary = tuple.getBinaryByField("content");
         String content = new String(binary, Charset.defaultCharset());
         //Language Detection
-        LanguageIdentifier object = new LanguageIdentifier(text);
-        if(object.getLanguage().equals("de")) {
+        //LanguageDetector langDetector = ;
+        //LanguageIdentifier object = new LanguageIdentifier(text);
+        final LanguageDetector detector = LanguageDetectorBuilder.fromAllBuiltInLanguages().build();
+        final Language detectedLanguage = detector.detectLanguageOf(text);
+        if(detectedLanguage.equals(Language.GERMAN)) {
         	String filenameURL = url.replaceAll("[^a-zA-Z0-9\\-]", "");
         	filenameURL = filenameURL.replaceAll("https", "");
         	filenameURL = filenameURL.replaceAll("http", "");
@@ -101,6 +112,40 @@ public class OutputFileWriter extends AbstractIndexerBolt {
         		filenameURL = filenameURL.substring(0, 20)+"_"+RandomStringUtils.randomAlphanumeric(4);
         	}
             String filename = "/topology/Output/" + filenameURL + ".json";
+            // Create JSON     
+            JSONObject json = new JSONObject();
+            json.put("date", metadata.getFirstValue("date"));
+            json.put("encoding", metadata.getFirstValue("parse.Content-Encoding"));
+            json.put("title", metadata.getFirstValue("parse.title"));
+            json.put("url", url);   
+            json.put("text", text);
+            json.put("content", content);
+            //
+            // Write JSON to File
+            FileWriter file = null;
+            try {
+    			file = new FileWriter(filename);
+    			file.write(json.toJSONString());
+    		} catch (IOException e) {
+    			e.printStackTrace();
+    		}finally {
+    			try {
+    				file.flush();
+    				file.close();
+    			} catch (IOException e) {
+    				e.printStackTrace();
+    			}
+    		}
+        }
+        else {
+        	String filenameURL = url.replaceAll("[^a-zA-Z0-9\\-]", "");
+        	filenameURL = filenameURL.replaceAll("https", "");
+        	filenameURL = filenameURL.replaceAll("http", "");
+        	filenameURL = filenameURL.replaceAll("www", "");
+        	if(filenameURL.length()>150) {
+        		filenameURL = filenameURL.substring(0, 20)+"_"+RandomStringUtils.randomAlphanumeric(4);
+        	}
+            String filename = "/topology/Output_non_german/" + filenameURL + ".json";
             // Create JSON     
             JSONObject json = new JSONObject();
             json.put("date", metadata.getFirstValue("date"));

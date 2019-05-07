@@ -28,6 +28,7 @@ services:
       #   storm jar topology.jar ntb/iks/crawler/CrawlTopology -local
       #source(host-system):target(nimbus-container)
       - '../storm-crawler-master/archetype/src/main/resources/archetype-resources/target:/topology'
+      #- '/home/lunchcrawler/log_crawl2:/tmp/fetcher-dump'
 
   supervisor:
     image: storm
@@ -40,6 +41,8 @@ services:
       - nimbus
       - zookeeper
     restart: always
+    volumes:
+      - '/home/lunchcrawler/log_crawl2/supervisor:/logs'
 
   ui:
     image: storm
