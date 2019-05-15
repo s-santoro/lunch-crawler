@@ -37,26 +37,15 @@ import com.github.pemistahl.lingua.api.Language;
  * for each found Website.
  */
 @SuppressWarnings("serial")
-public class OutputFileWriter extends AbstractIndexerBolt {
+public class SkinnyFileWriter extends AbstractIndexerBolt {
     OutputCollector _collector;
-    /**
-     * Global Languagedetector to detect the following Languages: GERMAN, ENGLISH, FRENCH, ITALIAN
-     * If language is German, Files are written to Output
-     * If different Language, Files are written to Output_non_german
-     * Performance increased through the following Steps:
-     * 1. Global Languagedetector, not inside uf "execute" Method
-     * 2. Restricted Languages to the four Languages above 
-     */
-    private LanguageDetector detector;
-    
+
     @SuppressWarnings("rawtypes")
     @Override
     public void prepare(Map conf, TopologyContext context,
                         OutputCollector collector) {
         super.prepare(conf, context, collector);
         _collector = collector;
-        detector = LanguageDetectorBuilder.fromLanguages(Language.GERMAN, Language.ITALIAN, Language.FRENCH, Language.ENGLISH).build();
-        
     }
 
     @SuppressWarnings("deprecation")
@@ -109,79 +98,39 @@ public class OutputFileWriter extends AbstractIndexerBolt {
         // BA-CODE: Create Output-JSON-Files  and write them
         byte[] binary = tuple.getBinaryByField("content");
         String content = new String(binary, Charset.defaultCharset());
-
-        
-        final Language detectedLanguage = detector.detectLanguageOf(text);
-        
-        if(detectedLanguage.equals(Language.GERMAN)) {
-        	String filenameURL = url.replaceAll("[^a-zA-Z0-9\\-]", "");
-        	filenameURL = filenameURL.replaceAll("https", "");
-        	filenameURL = filenameURL.replaceAll("http", "");
-        	filenameURL = filenameURL.replaceAll("www", "");
-        	if(filenameURL.length()>150) {
-        		filenameURL = filenameURL.substring(0, 20)+"_"+RandomStringUtils.randomAlphanumeric(4);
-        	}
-            String filename = "/topology/Output/" + filenameURL + ".json";
-            // Create JSON     
-            JSONObject json = new JSONObject();
-            json.put("date", metadata.getFirstValue("date"));
-            json.put("encoding", metadata.getFirstValue("parse.Content-Encoding"));
-            json.put("title", metadata.getFirstValue("parse.title"));
-            json.put("url", url);   
-            json.put("text", text);
-            json.put("content", content);
-            //
-            // Write JSON to File
-            FileWriter file = null;
-            try {
-    			file = new FileWriter(filename);
-    			file.write(json.toJSONString());
-    		} catch (IOException e) {
-    			e.printStackTrace();
-    		}finally {
-    			try {
-    				file.flush();
-    				file.close();
-    			} catch (IOException e) {
-    				e.printStackTrace();
-    			}
-    		}
-        }
-        else {
-        	String filenameURL = url.replaceAll("[^a-zA-Z0-9\\-]", "");
-        	filenameURL = filenameURL.replaceAll("https", "");
-        	filenameURL = filenameURL.replaceAll("http", "");
-        	filenameURL = filenameURL.replaceAll("www", "");
-        	if(filenameURL.length()>150) {
-        		filenameURL = filenameURL.substring(0, 20)+"_"+RandomStringUtils.randomAlphanumeric(4);
-        	}
-            String filename = "/topology/Output_non_german/" + filenameURL + ".json";
-            // Create JSON     
-            JSONObject json = new JSONObject();
-            json.put("date", metadata.getFirstValue("date"));
-            json.put("encoding", metadata.getFirstValue("parse.Content-Encoding"));
-            json.put("title", metadata.getFirstValue("parse.title"));
-            json.put("url", url);   
-            json.put("text", text);
-            json.put("content", content);
-            //
-            // Write JSON to File
-            FileWriter file = null;
-            try {
-    			file = new FileWriter(filename);
-    			file.write(json.toJSONString());
-    		} catch (IOException e) {
-    			e.printStackTrace();
-    		}finally {
-    			try {
-    				file.flush();
-    				file.close();
-    			} catch (IOException e) {
-    				e.printStackTrace();
-    			}
-    		}
-        }
+        String filenameURL = url.replaceAll("[^a-zA-Z0-9\\-]", "");
+    	filenameURL = filenameURL.replaceAll("https", "");
+    	filenameURL = filenameURL.replaceAll("http", "");
+    	filenameURL = filenameURL.replaceAll("www", "");
+    	if(filenameURL.length()>150) {
+    		filenameURL = filenameURL.substring(0, 20)+"_"+RandomStringUtils.randomAlphanumeric(4);
+    	}
+        String filename = "/topology/Output/" + filenameURL + ".json";
+        // Create JSON     
+        JSONObject json = new JSONObject();
+        json.put("date", metadata.getFirstValue("date"));
+        json.put("encoding", metadata.getFirstValue("parse.Content-Encoding"));
+        json.put("title", metadata.getFirstValue("parse.title"));
+        json.put("url", url);   
+        json.put("text", text);
+        json.put("content", content);
         //
+        // Write JSON to File
+        FileWriter file = null;
+        try {
+			file = new FileWriter(filename);
+			file.write(json.toJSONString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				file.flush();
+				file.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+        
         //
         //
         _collector.emit(StatusStreamName, tuple, new Values(url, metadata,

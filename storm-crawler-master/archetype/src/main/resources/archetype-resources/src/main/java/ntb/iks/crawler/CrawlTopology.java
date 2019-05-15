@@ -25,11 +25,13 @@ import com.digitalpebble.stormcrawler.bolt.URLPartitionerBolt;
 import com.digitalpebble.stormcrawler.bolt.FeedParserBolt;
 import com.digitalpebble.stormcrawler.indexing.StdOutIndexer;
 import com.digitalpebble.stormcrawler.persistence.MemoryStatusUpdater;
+import com.digitalpebble.stormcrawler.persistence.StdOutStatusUpdater;
 import com.digitalpebble.stormcrawler.spout.FileSpout;
 import com.digitalpebble.stormcrawler.spout.MemorySpout;
 
 import ntb.iks.bolts.CustomMemoryStatusUpdater;
 import ntb.iks.bolts.OutputFileWriter;
+import ntb.iks.bolts.SkinnyFileWriter;
 import org.apache.storm.topology.TopologyBuilder;
 import org.apache.storm.tuple.Fields;
 import org.slf4j.Logger;
@@ -46,15 +48,15 @@ public class CrawlTopology extends ConfigurableTopology {
 
     @Override
     protected int run(String[] args) {
-
+    	
+    	TopologyBuilder builder = new TopologyBuilder();
+    	
         String seedPath = "/topology/";
         //FileReaderSpout fileReaderSpouts = new FileReaderSpout(seedPath);
         //String[] testURLs = fileReaderSpouts.getUrls();
         //LOG.info("-------- files loaded: ", testURLs);
+        //String[] testURLs = new String[] { "http://www.limmatbruecke.ch", "http://www.limmathof.com", "http://www.limmat-restaurant.ch", "http://www.lincoln21.ch", "http://www.linde-baden.ch", "http://www.linde-basel.ch", "http://www.linde-belp.ch", "http://www.lindeberschis.ch", "http://www.linde-daiwil.ch", "http://www.lochergut.net", "http://www.littleitaly-sh.ch", "http://www.little-panda.ch", "http://www.lintakeaway.ch", "http://www.lindewurm.ch", "http://www.linde-uster.ch", "http://www.linden-pub.ch", "http://www.linde-embrach.ch", "http://www.linde-dettighofen.ch" };
         String[] testURLs = new String[] { "" };
-
-        TopologyBuilder builder = new TopologyBuilder();
-
         builder.setSpout("file", new FileSpout(seedPath, "seed.txt", false));
 
         builder.setSpout("spout", new MemorySpout(testURLs));

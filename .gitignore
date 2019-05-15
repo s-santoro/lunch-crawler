@@ -30,6 +30,10 @@ hs_err_pid*
 # JSON Files
 *.json
 
+# Seed files
+seed*.txt
+Seed*.txt
+
 # folders
 neg
 pos
