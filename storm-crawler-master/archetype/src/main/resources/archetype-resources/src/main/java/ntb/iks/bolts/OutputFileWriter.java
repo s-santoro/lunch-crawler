@@ -8,6 +8,8 @@ import java.util.Map;
 import org.apache.storm.shade.org.apache.commons.lang.RandomStringUtils;
 import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
+import org.apache.storm.topology.OutputFieldsDeclarer;
+import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 import org.json.simple.JSONObject;
@@ -75,34 +77,34 @@ public class OutputFileWriter extends AbstractIndexerBolt {
         if (!keep) {
             // treat it as successfully processed even if
             // we do not index it
-            _collector.emit(StatusStreamName, tuple, new Values(url, metadata,
-                    Status.FETCHED));
+          _collector.emit(StatusStreamName, tuple, new Values(url, metadata,
+          Status.FETCHED));
             _collector.ack(tuple);
             return;
         }
         
-        // display text of the document?
-        if (fieldNameForText() != null) {
-            
-            System.out.println(fieldNameForText() + "\t" + trimValue(text));
-        }
-
-        if (fieldNameForURL() != null) {
-            System.out.println(fieldNameForURL() + "\t"
-                    + trimValue(normalisedurl));
-        }
-
-        // which metadata to display?
-        Map<String, String[]> keyVals = filterMetadata(metadata);
-
-        Iterator<String> iterator = keyVals.keySet().iterator();
-        while (iterator.hasNext()) {
-            String fieldName = iterator.next();
-            String[] values = keyVals.get(fieldName);
-            for (String value : values) {
-                System.out.println(fieldName + "\t" + trimValue(value));
-            }
-        }
+//        // display text of the document?
+//        if (fieldNameForText() != null) {
+//            
+//            System.out.println(fieldNameForText() + "\t" + trimValue(text));
+//        }
+//
+//        if (fieldNameForURL() != null) {
+//            System.out.println(fieldNameForURL() + "\t"
+//                    + trimValue(normalisedurl));
+//        }
+//
+//        // which metadata to display?
+//        Map<String, String[]> keyVals = filterMetadata(metadata);
+//
+//        Iterator<String> iterator = keyVals.keySet().iterator();
+//        while (iterator.hasNext()) {
+//            String fieldName = iterator.next();
+//            String[] values = keyVals.get(fieldName);
+//            for (String value : values) {
+//                System.out.println(fieldName + "\t" + trimValue(value));
+//            }
+//        }
 
         //
         //
@@ -118,6 +120,13 @@ public class OutputFileWriter extends AbstractIndexerBolt {
         	filenameURL = filenameURL.replaceAll("https", "");
         	filenameURL = filenameURL.replaceAll("http", "");
         	filenameURL = filenameURL.replaceAll("www", "");
+        	filenameURL = filenameURL.replaceAll("C3A4", "a"); //UTF-8 for ä
+        	filenameURL = filenameURL.replaceAll("C3B6", "o"); //UTF-8 for ö
+        	filenameURL = filenameURL.replaceAll("C3BC", "u"); //UTF-8 for ü
+        	filenameURL = filenameURL.replaceAll("C384", "a"); //UTF-8 for Ä
+        	filenameURL = filenameURL.replaceAll("C396", "o"); //UTF-8 for Ö
+        	filenameURL = filenameURL.replaceAll("C39C", "u"); //UTF-8 for Ü
+        	
         	if(filenameURL.length()>150) {
         		filenameURL = filenameURL.substring(0, 20)+"_"+RandomStringUtils.randomAlphanumeric(4);
         	}
@@ -136,14 +145,17 @@ public class OutputFileWriter extends AbstractIndexerBolt {
             try {
     			file = new FileWriter(filename);
     			file.write(json.toJSONString());
+    			file.flush();
     		} catch (IOException e) {
     			e.printStackTrace();
-    		}finally {
-    			try {
-    				file.flush();
+    		}
+            finally {
+    			try {	
     				file.close();
     			} catch (IOException e) {
     				e.printStackTrace();
+    			} catch (NullPointerException n) {
+    				n.printStackTrace();
     			}
     		}
         }
@@ -170,14 +182,17 @@ public class OutputFileWriter extends AbstractIndexerBolt {
             try {
     			file = new FileWriter(filename);
     			file.write(json.toJSONString());
+    			file.flush();
     		} catch (IOException e) {
     			e.printStackTrace();
-    		}finally {
-    			try {
-    				file.flush();
+    		}
+            finally {
+    			try {	
     				file.close();
     			} catch (IOException e) {
     				e.printStackTrace();
+    			} catch (NullPointerException n) {
+    				n.printStackTrace();
     			}
     		}
         }
@@ -188,11 +203,15 @@ public class OutputFileWriter extends AbstractIndexerBolt {
                 Status.FETCHED));
         _collector.ack(tuple);
     }
-
-    private String trimValue(String value) {
-        if (value.length() > 100)
-            return value.length() + " chars";
-        return value;
+    
+    public void declareOutputFields(OutputFieldsDeclarer declarer) {
+        declarer.declareStream(StatusStreamName, new Fields("url", "metadata", "status"));
     }
+
+//    private String trimValue(String value) {
+//        if (value.length() > 100)
+//            return value.length() + " chars";
+//        return value;
+//    }
 
 }
