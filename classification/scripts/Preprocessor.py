@@ -37,7 +37,7 @@ class Preprocessor(Task):
         configs = Configurations().configs[self.configId]
 
         df = pd.read_csv(self.input().path)
-        output_df = pd.DataFrame(columns=('text', 'url', 'title', 'class'))
+        output_df = pd.DataFrame(columns=('text', 'cleaned_text', 'url', 'title', 'class'))
 
         for index, document in df.iterrows():
             # Text Preprocessing
@@ -79,7 +79,7 @@ class Preprocessor(Task):
                 title = self.removeStopWords(title)
 
             # Write rows for Output-File
-            row = [text, document.url, title, document.Class]
+            row = [document.text, text, document.url, title, document.Class]
             output_df.loc[index] = row
         
         # Write .csv-File
@@ -98,21 +98,21 @@ class Preprocessor(Task):
         # x => number
         # a => letter
         #   [x or a or , or .]xxx.xx( )chf[x or a]
-        text = re.sub(r'[^0-9a-z\.\,][0-9]{1,3}(\.|\,)[0-9](5|0) {0,1}(chf|sfr|fr|\.\-)[^0-9a-z]', ' priceentity ', text)
+        text = re.sub(r'[^0-9a-z\.\,][0-9]{1,2}(\.|\,)[0-9](5|0) {0,1}(chf|sfr|fr|\.\-)[^0-9a-z]', ' priceentity ', text)
         # match following patterns with chf,sfr,fr or .-:
         # characters inside () are optional
         # characters inside [] are prohibited
         # x => number
         # a => letter
         #   [x or a or , or .]xxx( )chf[x or a]
-        text = re.sub(r'[^0-9a-z\.\,][0-9]{1,3} {0,1}(chf|sfr|fr|\.\-)[^0-9a-z]', ' priceentity ', text)
+        text = re.sub(r'[^0-9a-z\.\,][0-9]{1,2} {0,1}(chf|sfr|fr|\.\-)[^0-9a-z]', ' priceentity ', text)
         # match following patterns with decimalpoint or comma, real rappen-values and chf,sfr,fr or .-:
         # characters inside () are optional
         # characters inside [] are prohibited
         # x => number
         # a => letter
         #   [x or a or , or .]chf(.)( )xxx.xx[x or a]
-        text = re.sub(r'[^0-9a-z\.\,](chf|sfr|fr)\.{0,1} {0,1}[0-9]{1,3}(\.|\,)[0-9](5|0)[^0-9a-z]', ' priceentity ', text)
+        text = re.sub(r'[^0-9a-z\.\,](chf|sfr|fr)\.{0,1} {0,}\t{0,}[0-9]{1,2}(\.|\,)[0-9](5|0)[^0-9a-z]', ' priceentity ', text)
         # match following patterns with decimalpoint or comma and real rappen-values:
         # characters inside () are optional
         # characters inside [] are prohibited
@@ -121,7 +121,7 @@ class Preprocessor(Task):
         #   [x or a or , or .]xxx.xx[x or a]
         # to avoid detecting day times or dates the regex only detects
         # prices with values after decimalpoint over 59 (i.e 12.60 or 1.65)
-        text = re.sub(r'[^0-9a-z\.\,][0-9]{1,3}(\.|\,)[6-9](0|5)[^0-9\.a-z]', ' priceentity ', text)
+        text = re.sub(r'[^0-9a-z\.\,][0-9]{1,2}(\.|\,)[6-9](0|5)[^0-9\.a-z]', ' priceentity ', text)
         return text
         
     def removeSpecialCharacters(self, text):
