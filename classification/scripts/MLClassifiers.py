@@ -202,7 +202,6 @@ class MLClassifiers(Task):
         models_report += "\n"
         models_report += str("Best 3 models with parameters for hyperparameter tuning:\n")
         models_report += str(self.format_params(self.model_params(model_dict, all_model_scores)))
-        #print(models_report)
 
         # bar plot of all classifiers
         model_name = all_model_scores['model_name']
