@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # get configId from parameter-passing
-id="$1"
-
+end="$1"
+id="$2"
 # run luigi pipeline with given configId
-python3 -m luigi --module Evaluator Evaluator --configId ${id} --local-scheduler
+python3 -m luigi --module ${end} ${end} --configId ${id} --local-scheduler
