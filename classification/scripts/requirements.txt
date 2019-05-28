@@ -1,0 +1,22 @@
+## first install pip3 als package-manager
+##
+# sudo apt-get install python3-pip
+##
+## then all necessary packages to run pipeline with pip3
+##
+# pip3 install -r requirements.txt
+
+pandas
+numpy
+#json       # built-in
+sklearn
+nltk
+gensim
+matplotlib
+seaborn
+#re         # built-in
+datetime
+luigi
+
+
+
