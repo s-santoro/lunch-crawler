@@ -119,11 +119,13 @@ class RulebasedClassifier(Task):
         return features
 
     def runCombinedRules(self, document):
+        rulesFromConfig = 0
         title = document.title
         text = document.text
         appliedRules = []
         # check if title is a string
         if type(title) is str and Configurations().configs[self.configId].get("menuInTitle") == True:
+            rulesFromConfig += 1
             if Preprocessor().stemWord('menu') in title:
                 appliedRules.append(1)
 
@@ -133,12 +135,14 @@ class RulebasedClassifier(Task):
         # check if text is a string
         if type(text) is str:
             if Preprocessor().stemWord('priceentity') in text and Configurations().configs[self.configId].get("priceEntity") == True:
+                rulesFromConfig += 1
                 appliedRules.append(1)
             if Configurations().configs[self.configId].get("whiteList"):
+                rulesFromConfig += 1
                 appliedRules.append(self.whitelisting(text, document))
 
         # check if threshold exceeded
-        if appliedRules.count(1) > 0:
+        if appliedRules.count(1) >= rulesFromConfig:
             return 1
         else:
             return 0
@@ -176,10 +180,12 @@ class RulebasedClassifier(Task):
                 hasValues = True
                 temp += ("key: %s\t\tvalue: %s\n"%(key, dictionary[key]))
 
-        if hasValues and classValue == 0 and len(temp.split("\n")) >= self.keyAmount:
+        #if hasValues and classValue == 0 and len(temp.split("\n")) >= self.keyAmount:
+        if hasValues and len(temp.split("\n")) >= self.keyAmount:
             hasNegValues = True
             self.printNegCounter += 1
-        if hasValues and classValue == 1 and len(temp.split("\n")) >= self.keyAmount:
+        #if hasValues and classValue == 1 and len(temp.split("\n")) >= self.keyAmount:
+        if hasValues and len(temp.split("\n")) >= self.keyAmount:
             hasPosValues = True
             self.printPosCounter += 1
         if hasPosValues:
