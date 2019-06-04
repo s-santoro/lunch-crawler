@@ -91,38 +91,38 @@ class Preprocessor(Task):
     def toLowerCase(self, text):
         return text.lower()
     
-    def priceTagger(self, text):
-        # match patterns with decimalpoint or comma, real rappen-values and chf,sfr,fr or .-:
-        # whitespaces inside () are optional
-        # characters inside [] are prohibited
-        # x => number
-        # a => letter
-        #   [x or a or , or .]xxx.xx( )chf[x or a]
-        text = re.sub(r'[^0-9a-z\.\,][0-9]{1,2}(\.|\,)[0-9](5|0) {0,1}(chf|sfr|fr|\.\-)[^0-9a-z]', ' priceentity ', text)
-        # match following patterns with chf,sfr,fr or .-:
-        # characters inside () are optional
-        # characters inside [] are prohibited
-        # x => number
-        # a => letter
-        #   [x or a or , or .]xxx( )chf[x or a]
-        text = re.sub(r'[^0-9a-z\.\,][0-9]{1,2} {0,1}(chf|sfr|fr|\.\-)[^0-9a-z]', ' priceentity ', text)
-        # match following patterns with decimalpoint or comma, real rappen-values and chf,sfr,fr or .-:
-        # characters inside () are optional
-        # characters inside [] are prohibited
-        # x => number
-        # a => letter
-        #   [x or a or , or .]chf(.)( )xxx.xx[x or a]
-        text = re.sub(r'[^0-9a-z\.\,](chf|sfr|fr)\.{0,1} {0,}\t{0,}[0-9]{1,2}(\.|\,)[0-9](5|0)[^0-9a-z]', ' priceentity ', text)
-        # match following patterns with decimalpoint or comma and real rappen-values:
-        # characters inside () are optional
-        # characters inside [] are prohibited
-        # x => number
-        # a => letter
-        #   [x or a or , or .]xxx.xx[x or a]
-        # to avoid detecting day times or dates the regex only detects
-        # prices with values after decimalpoint over 59 (i.e 12.60 or 1.65)
-        text = re.sub(r'[^0-9a-z\.\,][0-9]{1,2}(\.|\,)[6-9](0|5)[^0-9\.a-z]', ' priceentity ', text)
-        return text
+    # def priceTagger(self, text):
+    #     # match patterns with decimalpoint or comma, real rappen-values and chf,sfr,fr or .-:
+    #     # whitespaces inside () are optional
+    #     # characters inside [] are prohibited
+    #     # x => number
+    #     # a => letter
+    #     #   [x or a or , or .]xxx.xx( )chf[x or a]
+    #     text = re.sub(r'[^0-9a-z\.\,][0-9]{1,2}(\.|\,)[0-9](5|0) {0,1}(chf|sfr|fr|\.\-)[^0-9a-z]', ' priceentity ', text)
+    #     # match following patterns with chf,sfr,fr or .-:
+    #     # characters inside () are optional
+    #     # characters inside [] are prohibited
+    #     # x => number
+    #     # a => letter
+    #     #   [x or a or , or .]xxx( )chf[x or a]
+    #     text = re.sub(r'[^0-9a-z\.\,][0-9]{1,2} {0,1}(chf|sfr|fr|\.\-)[^0-9a-z]', ' priceentity ', text)
+    #     # match following patterns with decimalpoint or comma, real rappen-values and chf,sfr,fr or .-:
+    #     # characters inside () are optional
+    #     # characters inside [] are prohibited
+    #     # x => number
+    #     # a => letter
+    #     #   [x or a or , or .]chf(.)( )xxx.xx[x or a]
+    #     text = re.sub(r'[^0-9a-z\.\,](chf|sfr|fr)\.{0,1} {0,}\t{0,}[0-9]{1,2}(\.|\,)[0-9](5|0)[^0-9a-z]', ' priceentity ', text)
+    #     # match following patterns with decimalpoint or comma and real rappen-values:
+    #     # characters inside () are optional
+    #     # characters inside [] are prohibited
+    #     # x => number
+    #     # a => letter
+    #     #   [x or a or , or .]xxx.xx[x or a]
+    #     # to avoid detecting day times or dates the regex only detects
+    #     # prices with values after decimalpoint over 59 (i.e 12.60 or 1.65)
+    #     text = re.sub(r'[^0-9a-z\.\,][0-9]{1,2}(\.|\,)[6-9](0|5)[^0-9\.a-z]', ' priceentity ', text)
+    #     return text
         
     def removeSpecialCharacters(self, text):
         return re.sub(r'[^éàèÉÀÈäöüÄÖÜa-zA-Z]+', ' ', str(text))
@@ -165,28 +165,62 @@ class Preprocessor(Task):
         text = re.sub(r'ü', 'u', text)
         return text
         
+    # Tag prices below 10.00 with drinkpriceentity
+    # Tag prices between 10.00 and 100.00 with menupriceentity
+    # Tag prices 100.00 or higher with hotelpriceentity
+    def priceTagger(self, text):
 
-
-# Preis-Regex werden verwendet, um effektive Preise auf das Wort 'preis' zu mappen.
-# Dies ist nützlich, indem bei der späteren Klassifizierung nach dem Wort 'preis' und nicht nach
-# effektiven Frankenbeträgen gesucht werden kann.  
-# 
-# Die unteren Muster von Preisen wurden mit den Regex formuliert
-# - _xxx.xx chf
-# - _xxx.xxchf
-# - _xxx chf
-# - _xxxchf
-# - _xxx.xx
-# - Die Muster folgen folgender Konvention:
-#     - Es kann entweder ein Dezimalpunkt oder ein Komma als Separator verwendet werden
-#     - Die Preise gehen von 00.00 bis 999.95
-#     - Es werden nur Preise erkannt, die einen realen Rappenbetrag präsentieren
-#     - Es können chf, sfr, fr oder .- als Abkürzungen für Geldbeträge verwendet werden
-#     - Preise ohne Abkürzungen sind auch möglich, sofern sie die anderen Konventionen berücksichtigen
-#     - Der Bodenstrich soll ein Leerzeichen präsentieren
-
-# ## Anpassungen
-# - Anpassung von Regex "preis" auf "priceentity", da diese mit hoher Wahrscheinlichkeit nicht vorkommt
-# 
-#pre = Preprocessor()
-#pre.run()
+        # match patterns with decimalpoint or comma, real rappen-values and chf,sfr,fr or .-:
+        # whitespaces inside () are optional
+        # characters inside [] are prohibited
+        # x => number
+        # a => letter
+        #   [x or a or , or .]xxx.xx( )chf[x or a]
+        # matches for example:    " 0.65      chf"
+        text = re.sub(r'[^0-9a-z\.\,][0-9]{1,1}(\.|\,)[0-9](5|0)[ \t]{0,}(chf|sfr|fr|\.\-)[^0-9a-z]', ' drinkpriceentity ', text)
+        # matches for example:    " 51.80      sfr" but not " 01.80      sfr"
+        text = re.sub(r'[^0-9a-z\.\,][1-9]{1,1}[0-9]{1,1}(\.|\,)[0-9](5|0)[ \t]{0,}(chf|sfr|fr|\.\-)[^0-9a-z]', ' menupriceentity ', text)
+        # matches for example:    " 111.05      .-" but not " 031.80      .-"
+        text = re.sub(r'[^0-9a-z\.\,][1-9]{1,1}[0-9]{2,2}(\.|\,)[0-9](5|0)[ \t]{0,}(chf|sfr|fr|\.\-)[^0-9a-z]', ' hotelpriceentity ', text)
+    
+        # match following patterns with chf,sfr,fr or .-:
+        # characters inside () are optional
+        # characters inside [] are prohibited
+        # x => number
+        # a => letter
+        #   [x or a or , or .]xxx( )chf[x or a]
+        # matches for example:    " 3chf"
+        text = re.sub(r'[^0-9a-z\.\,][1-9]{1,1}[ \t]{0,}(chf|sfr|fr|\.\-)[^0-9a-z]', ' drinkpriceentity ', text)
+        # matches for example:    " 10  sfr" but not " 09  sfr"
+        text = re.sub(r'[^0-9a-z\.\,][1-9]{1,1}[0-9]{1,1}[ \t]{0,}(chf|sfr|fr|\.\-)[^0-9a-z]', ' menupriceentity ', text)
+        # matches for example:    " 210  fr" but not " 029  fr"
+        text = re.sub(r'[^0-9a-z\.\,][1-9]{1,1}[0-9]{2,2}[ \t]{0,}(chf|sfr|fr|\.\-)[^0-9a-z]', ' hotelpriceentity ', text)
+    
+        # match following patterns with decimalpoint or comma, real rappen-values and chf,sfr,fr or .-:
+        # characters inside () are optional
+        # characters inside [] are prohibited
+        # x => number
+        # a => letter
+        #   [x or a or , or .]chf(.)( )xxx.xx[x or a]
+        # matches for example:    " chf:      0.65"          
+        text = re.sub(r'[^0-9a-z\.\,](chf|sfr|fr)[\:|\,|\.]{0,1}[ \t]{0,}[0-9]{1,1}(\.|\,)[0-9](5|0)[^0-9a-z]', ' drinkpriceentity ', text)
+        # matches for example:    " sfr,      12.65" but not " sfr,      02.65"
+        text = re.sub(r'[^0-9a-z\.\,](chf|sfr|fr)[\:|\,|\.]{0,1}[ \t]{0,}[1-9]{1,1}[0-9]{1,1}(\.|\,)[0-9](5|0)[^0-9a-z]', ' menupriceentity ', text)
+        # matches for example:    " fr.  412.65" but not " fr.   042.65"
+        text = re.sub(r'[^0-9a-z\.\,](chf|sfr|fr)[\:|\,|\.]{0,1}[ \t]{0,}[1-9]{1,1}[0-9]{2,2}(\.|\,)[0-9](5|0)[^0-9a-z]', ' hotelpriceentity ', text)
+    
+        # match following patterns with decimalpoint or comma and real rappen-values:
+        # characters inside () are optional
+        # characters inside [] are prohibited
+        # x => number
+        # a => letter
+        #   [x or a or , or .]xxx.xx[x or a]
+        # to avoid detecting day times or dates the regex only detects
+        # prices with values after decimalpoint over 59 (i.e 12.60 or 1.65)
+        # matches for example:    " 2.60" but not " 2.55"
+        text = re.sub(r'[^0-9a-z\.\,][0-9]{1,1}(\.|\,)[6-9](0|5)[^0-9\.a-z]', ' drinkpriceentity ', text)
+        # matches for example:    " 12.70" but not " 02.55" or neither " 12.40"
+        text = re.sub(r'[^0-9a-z\.\,][1-9]{1,1}[0-9]{1,1}(\.|\,)[6-9](0|5)[^0-9\.a-z]', ' menupriceentity ', text)
+        # matches for example:    " 126.70" and " 126.35" but not " 032.55"
+        text = re.sub(r'[^0-9a-z\.\,][1-9]{1,1}[0-9]{2,2}(\.|\,)[0-9](0|5)[^0-9\.a-z]', ' hotelpriceentity ', text)
+        return text
