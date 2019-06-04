@@ -70,6 +70,8 @@ class MLClassifiers(Task):
     def run(self):
         # use configID from commandline
         configs = Configurations().configs[self.configId]
+        if configs.get("useML") == False:
+            return
         eval_dict = {}
 
         # parameters for config
@@ -180,10 +182,10 @@ class MLClassifiers(Task):
         # all other parameters are set to default
         model_dict = {'Linear SVC': LinearSVC(),
                       'Ridge Classifier': RidgeClassifier(random_state=random_state),
-                      'Perceptron': Perceptron(random_state=random_state),
-                      'Passive Aggressive Classifier': PassiveAggressiveClassifier(random_state=random_state),
-                      'Stochastic Gradient Descent': SGDClassifier(random_state=random_state),
-                      'Random Forest': RandomForestClassifier(random_state=random_state),
+                      'Perceptron': Perceptron(random_state=random_state, n_jobs=-1),
+                      'Passive Aggressive Classifier': PassiveAggressiveClassifier(random_state=random_state, n_jobs=-1),
+                      'Stochastic Gradient Descent': SGDClassifier(random_state=random_state, n_jobs=-1),
+                      'Random Forest': RandomForestClassifier(random_state=random_state, n_jobs=-1),
                       'Decsision Tree': DecisionTreeClassifier(random_state=random_state),
                       'AdaBoost': AdaBoostClassifier(random_state=random_state),
                       'Gaussian Naive Bayes': GaussianNB(),
@@ -202,6 +204,17 @@ class MLClassifiers(Task):
         models_report += "\n"
         models_report += str("Best 3 models with parameters for hyperparameter tuning:\n")
         models_report += str(self.format_params(self.model_params(model_dict, all_model_scores)))
+        models_report += "\n"
+        models_report += "\n"
+        models_report += str("Pipeline Configuration:\n")
+        models_report += "configID: %s\n" % self.configId
+        for key in configs:
+            models_report += "\t%s:" % str(key)
+            x = len(str(key))
+            while x < 35:
+                x += 1
+                models_report += " "
+            models_report += "%s\n" % str(configs.get(key))
 
         # bar plot of all classifiers
         model_name = all_model_scores['model_name']
@@ -211,7 +224,7 @@ class MLClassifiers(Task):
         indices = np.arange(len(all_model_scores))
 
         plt.figure(figsize=(12, 8))
-        plt.title("Classifier-Comparison")
+        plt.title("Classifier-Comparison with config: %s" % self.configId)
         p1 = plt.barh(indices, precision, .2, label="precision", color='#41f4a0')
         p2 = plt.barh(indices + .3, recall, .2, label="recall", color='#f4bc42')
         p3 = plt.barh(indices + .6, f1, .2, label="f1 score", color='#4286f4')
