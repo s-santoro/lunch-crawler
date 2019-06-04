@@ -14,3 +14,7 @@ run luigi pipeline (first cd into scripts-folder)
 run pipeline with local scheduler (first cd into scripts-folder) (no webinterface)  
 `$ python3 -m luigi --module Evaluator Evaluator --local-scheduler`  
 
+### IMPORTANT NOTICE
+Make sure to rename the suitable configs-file to ./configs/Configurations.py:
+- ConfigurationsML.py for Machine-learning pipeline
+- ConfigurationsRB.py for Rule-based pipeline
