@@ -165,9 +165,9 @@ class Preprocessor(Task):
         text = re.sub(r'ü', 'u', text)
         return text
         
-    # Tag prices below 10.00 with drinkpriceentity
-    # Tag prices between 10.00 and 100.00 with menupriceentity
-    # Tag prices 100.00 or higher with hotelpriceentity
+    # Tag prices below 10.00 with onedigitprice
+    # Tag prices between 10.00 and 100.00 with twodigitprice
+    # Tag prices 100.00 or higher with threedigitprice
     def priceTagger(self, text):
 
         # match patterns with decimalpoint or comma, real rappen-values and chf,sfr,fr or .-:
@@ -177,11 +177,11 @@ class Preprocessor(Task):
         # a => letter
         #   [x or a or , or .]xxx.xx( )chf[x or a]
         # matches for example:    " 0.65      chf"
-        text = re.sub(r'[^0-9a-z\.\,][0-9]{1,1}(\.|\,)[0-9](5|0)[ \t]{0,}(chf|sfr|fr|\.\-)[^0-9a-z]', ' drinkpriceentity ', text)
+        text = re.sub(r'[^0-9a-z\.\,][0-9]{1,1}(\.|\,)[0-9](5|0)[ \t]{0,}(chf|sfr|fr|\.\-)[^0-9a-z]', ' onedigitprice ', text)
         # matches for example:    " 51.80      sfr" but not " 01.80      sfr"
-        text = re.sub(r'[^0-9a-z\.\,][1-9]{1,1}[0-9]{1,1}(\.|\,)[0-9](5|0)[ \t]{0,}(chf|sfr|fr|\.\-)[^0-9a-z]', ' menupriceentity ', text)
+        text = re.sub(r'[^0-9a-z\.\,][1-9]{1,1}[0-9]{1,1}(\.|\,)[0-9](5|0)[ \t]{0,}(chf|sfr|fr|\.\-)[^0-9a-z]', ' twodigitprice ', text)
         # matches for example:    " 111.05      .-" but not " 031.80      .-"
-        text = re.sub(r'[^0-9a-z\.\,][1-9]{1,1}[0-9]{2,2}(\.|\,)[0-9](5|0)[ \t]{0,}(chf|sfr|fr|\.\-)[^0-9a-z]', ' hotelpriceentity ', text)
+        text = re.sub(r'[^0-9a-z\.\,][1-9]{1,1}[0-9]{2,2}(\.|\,)[0-9](5|0)[ \t]{0,}(chf|sfr|fr|\.\-)[^0-9a-z]', ' threedigitprice ', text)
     
         # match following patterns with chf,sfr,fr or .-:
         # characters inside () are optional
@@ -190,11 +190,11 @@ class Preprocessor(Task):
         # a => letter
         #   [x or a or , or .]xxx( )chf[x or a]
         # matches for example:    " 3chf"
-        text = re.sub(r'[^0-9a-z\.\,][1-9]{1,1}[ \t]{0,}(chf|sfr|fr|\.\-)[^0-9a-z]', ' drinkpriceentity ', text)
+        text = re.sub(r'[^0-9a-z\.\,][1-9]{1,1}[ \t]{0,}(chf|sfr|fr|\.\-)[^0-9a-z]', ' onedigitprice ', text)
         # matches for example:    " 10  sfr" but not " 09  sfr"
-        text = re.sub(r'[^0-9a-z\.\,][1-9]{1,1}[0-9]{1,1}[ \t]{0,}(chf|sfr|fr|\.\-)[^0-9a-z]', ' menupriceentity ', text)
+        text = re.sub(r'[^0-9a-z\.\,][1-9]{1,1}[0-9]{1,1}[ \t]{0,}(chf|sfr|fr|\.\-)[^0-9a-z]', ' twodigitprice ', text)
         # matches for example:    " 210  fr" but not " 029  fr"
-        text = re.sub(r'[^0-9a-z\.\,][1-9]{1,1}[0-9]{2,2}[ \t]{0,}(chf|sfr|fr|\.\-)[^0-9a-z]', ' hotelpriceentity ', text)
+        text = re.sub(r'[^0-9a-z\.\,][1-9]{1,1}[0-9]{2,2}[ \t]{0,}(chf|sfr|fr|\.\-)[^0-9a-z]', ' threedigitprice ', text)
     
         # match following patterns with decimalpoint or comma, real rappen-values and chf,sfr,fr or .-:
         # characters inside () are optional
@@ -203,11 +203,11 @@ class Preprocessor(Task):
         # a => letter
         #   [x or a or , or .]chf(.)( )xxx.xx[x or a]
         # matches for example:    " chf:      0.65"          
-        text = re.sub(r'[^0-9a-z\.\,](chf|sfr|fr)[\:|\,|\.]{0,1}[ \t]{0,}[0-9]{1,1}(\.|\,)[0-9](5|0)[^0-9a-z]', ' drinkpriceentity ', text)
+        text = re.sub(r'[^0-9a-z\.\,](chf|sfr|fr)[\:|\,|\.]{0,1}[ \t]{0,}[0-9]{1,1}(\.|\,)[0-9](5|0)[^0-9a-z]', ' onedigitprice ', text)
         # matches for example:    " sfr,      12.65" but not " sfr,      02.65"
-        text = re.sub(r'[^0-9a-z\.\,](chf|sfr|fr)[\:|\,|\.]{0,1}[ \t]{0,}[1-9]{1,1}[0-9]{1,1}(\.|\,)[0-9](5|0)[^0-9a-z]', ' menupriceentity ', text)
+        text = re.sub(r'[^0-9a-z\.\,](chf|sfr|fr)[\:|\,|\.]{0,1}[ \t]{0,}[1-9]{1,1}[0-9]{1,1}(\.|\,)[0-9](5|0)[^0-9a-z]', ' twodigitprice ', text)
         # matches for example:    " fr.  412.65" but not " fr.   042.65"
-        text = re.sub(r'[^0-9a-z\.\,](chf|sfr|fr)[\:|\,|\.]{0,1}[ \t]{0,}[1-9]{1,1}[0-9]{2,2}(\.|\,)[0-9](5|0)[^0-9a-z]', ' hotelpriceentity ', text)
+        text = re.sub(r'[^0-9a-z\.\,](chf|sfr|fr)[\:|\,|\.]{0,1}[ \t]{0,}[1-9]{1,1}[0-9]{2,2}(\.|\,)[0-9](5|0)[^0-9a-z]', ' threedigitprice ', text)
     
         # match following patterns with decimalpoint or comma and real rappen-values:
         # characters inside () are optional
@@ -218,9 +218,9 @@ class Preprocessor(Task):
         # to avoid detecting day times or dates the regex only detects
         # prices with values after decimalpoint over 59 (i.e 12.60 or 1.65)
         # matches for example:    " 2.60" but not " 2.55"
-        text = re.sub(r'[^0-9a-z\.\,][0-9]{1,1}(\.|\,)[6-9](0|5)[^0-9\.a-z]', ' drinkpriceentity ', text)
+        text = re.sub(r'[^0-9a-z\.\,][0-9]{1,1}(\.|\,)[6-9](0|5)[^0-9\.a-z]', ' onedigitprice ', text)
         # matches for example:    " 12.70" but not " 02.55" or neither " 12.40"
-        text = re.sub(r'[^0-9a-z\.\,][1-9]{1,1}[0-9]{1,1}(\.|\,)[6-9](0|5)[^0-9\.a-z]', ' menupriceentity ', text)
+        text = re.sub(r'[^0-9a-z\.\,][1-9]{1,1}[0-9]{1,1}(\.|\,)[6-9](0|5)[^0-9\.a-z]', ' twodigitprice ', text)
         # matches for example:    " 126.70" and " 126.35" but not " 032.55"
-        text = re.sub(r'[^0-9a-z\.\,][1-9]{1,1}[0-9]{2,2}(\.|\,)[0-9](0|5)[^0-9\.a-z]', ' hotelpriceentity ', text)
+        text = re.sub(r'[^0-9a-z\.\,][1-9]{1,1}[0-9]{2,2}(\.|\,)[0-9](0|5)[^0-9\.a-z]', ' threedigitprice ', text)
         return text
