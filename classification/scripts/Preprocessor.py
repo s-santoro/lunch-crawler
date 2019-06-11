@@ -56,6 +56,8 @@ class Preprocessor(Task):
                 text = self.removeMultiSpaces(text)
             if configs.get("textStemText"):
                 text = self.stemText(text)
+            if configs.get("textBeverageTagger"):
+                text = self.beverageTagger(text) 
             if configs.get("textRemoveStopWords"):
                 text = self.removeStopWords(text)
             
@@ -123,7 +125,17 @@ class Preprocessor(Task):
     #     # prices with values after decimalpoint over 59 (i.e 12.60 or 1.65)
     #     text = re.sub(r'[^0-9a-z\.\,][0-9]{1,2}(\.|\,)[6-9](0|5)[^0-9\.a-z]', ' priceentity ', text)
     #     return text
-        
+
+    def beverageTagger(self, text):
+        bev = pd.read_csv('../beverage_list.txt', header=None)
+        bev.columns = ['word']
+        bevWords = self.stemText(" ".join(bev.word))
+        for i, word in enumerate(text):
+            for bevWord in bevWords:
+                if word == bevWord:
+                    text[i] = "beverageentity" 
+        return text
+
     def removeSpecialCharacters(self, text):
         return re.sub(r'[^éàèÉÀÈäöüÄÖÜa-zA-Z]+', ' ', str(text))
     

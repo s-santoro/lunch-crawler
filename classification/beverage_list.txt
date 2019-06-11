@@ -21,7 +21,6 @@ citro
 shorley
 rivella
 schweppes
-
 espresso
 caffe
 caffe latte
@@ -39,8 +38,6 @@ rooibos
 schokolade
 ovomaltine
 milch
-
-
 bier
 panache
 radler
@@ -60,7 +57,6 @@ prosecco
 corona
 mohl
 aperol
-
 heida
 primitivo
 amarone
@@ -86,12 +82,10 @@ moscato
 rioja
 bodegas
 reserva
-
 grappa
 rum
 obstbrand
 amaretto
-
 smirnoff
 ballantines
 bacardi

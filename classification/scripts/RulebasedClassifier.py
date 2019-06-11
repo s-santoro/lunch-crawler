@@ -68,7 +68,7 @@ class RulebasedClassifier(Task):
     def runBoWRules(self, data):
         # Split Data into Train Files (for generating BoW) and Test Files
         if Configurations().configs[self.configId].get("useText"):
-            dataParameter = "text"
+            dataParameter = "cleaned_text"
         else:
             dataParameter = "title"
         from sklearn.model_selection import train_test_split
@@ -119,76 +119,36 @@ class RulebasedClassifier(Task):
         return features
 
     def runCombinedRules(self, document):
-        rulesFromConfig = 0
-        title = document.title
-        text = document.text
-        appliedRules = []
-        # check if title is a string
-        if type(title) is str and Configurations().configs[self.configId].get("menuInTitle") == True:
-            rulesFromConfig += 1
-            if Preprocessor().stemWord('menu') in title:
-                appliedRules.append(1)
-
-            if Preprocessor().stemWord('tagesmenu') in title:
-                appliedRules.append(1)
-
-        # check if text is a string
-        if type(text) is str:
-            if Preprocessor().stemWord('priceentity') in text and Configurations().configs[self.configId].get("priceEntity") == True:
-                rulesFromConfig += 1
-                appliedRules.append(1)
-            if Configurations().configs[self.configId].get("whiteList"):
-                rulesFromConfig += 1
-                appliedRules.append(self.whitelisting(text, document))
-
-        # check if threshold exceeded
-        if appliedRules.count(1) >= rulesFromConfig:
-            return 1
-        else:
-            return 0
-        # threshold = 1 and rules = priceDetector, whitelisting => score of 1
-
-
-    # whitelist with common ingredient and dish names
-    # return histogram which shows how many whitelist entries where found in given text
-    def whitelisting(self, text, document):
-        # use own white list (contains ingredients and dishes)
-        food = pd.read_csv('../food_white_list_no_umlaute.txt', header=None)
-        food.columns = ['word']
-        # convert list to set for word comparison and stem words
-        # length is length of food list without first entries=indexes
-        whitelistWords = Preprocessor().stemText(" ".join(food.word))
-        foodSet = set(whitelistWords)
-        foodDict = dict.fromkeys(foodSet, 0)
-        # split text which is a string in list presentation with seperator=' in order to get each element
-        # ['elem1', 'elem2', 'elem3']
+        text = document.cleaned_text
+        posValueCounter = 100
+        negValueCounter = 100
+        # Whitelisting
+        whitelist = pd.read_csv('../food_white_list_no_umlaute.txt', header=None)
+        whitelist.columns = ['word']
+        whitelistWords = Preprocessor().stemText(" ".join(whitelist.word))
+        whitelistSet = set(whitelistWords)
+        whitelistDict = dict.fromkeys(whitelistSet, 0)
         for word in text.split("'"):
-            # check if word is in foodSet
-            if word in foodSet:
-                # increment value of key=word
-                foodDict[word] += 1
+            if word in whitelistSet:
+                whitelistDict[word] += 1
+        for key, value in whitelistDict.items():
+            posValueCounter+=value
 
-        return self.evalHistValues(foodDict, document["class"])
-
-    def evalHistValues(self, dictionary, classValue):
-        temp = ""
-        hasValues = False
-        hasPosValues = False
-        hasNegValues = False
-        for key in dictionary:
-            if dictionary[key] >= self.keyValTreshold:
-                hasValues = True
-                temp += ("key: %s\t\tvalue: %s\n"%(key, dictionary[key]))
-
-        #if hasValues and classValue == 0 and len(temp.split("\n")) >= self.keyAmount:
-        if hasValues and len(temp.split("\n")) >= self.keyAmount:
-            hasNegValues = True
-            self.printNegCounter += 1
-        #if hasValues and classValue == 1 and len(temp.split("\n")) >= self.keyAmount:
-        if hasValues and len(temp.split("\n")) >= self.keyAmount:
-            hasPosValues = True
-            self.printPosCounter += 1
-        if hasPosValues:
+        # Blacklisting
+        blacklist = pd.read_csv('../blacklist.txt', header=None)
+        blacklist.columns = ['word']
+        blacklistWords = Preprocessor().stemText(" ".join(blacklist.word))
+        blacklistSet = set(blacklistWords)
+        blacklistDict = dict.fromkeys(blacklistSet, 0)
+        for word in text.split("'"):
+            if word in blacklistSet:
+                blacklistDict[word] += 1
+        for key, value in blacklistDict.items():
+            negValueCounter+=value
+        #posValueCounter = posValueCounter/Configurations().configs[self.configId].get("treshold")
+        #if posValueCounter > negValueCounter:
+        ratio = posValueCounter/negValueCounter
+        if ratio > Configurations().configs[self.configId].get("treshold"):
             return 1
         else:
             return 0
