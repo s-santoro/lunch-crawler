@@ -92,39 +92,6 @@ class Preprocessor(Task):
     # External Methods for preprocessing
     def toLowerCase(self, text):
         return text.lower()
-    
-    # def priceTagger(self, text):
-    #     # match patterns with decimalpoint or comma, real rappen-values and chf,sfr,fr or .-:
-    #     # whitespaces inside () are optional
-    #     # characters inside [] are prohibited
-    #     # x => number
-    #     # a => letter
-    #     #   [x or a or , or .]xxx.xx( )chf[x or a]
-    #     text = re.sub(r'[^0-9a-z\.\,][0-9]{1,2}(\.|\,)[0-9](5|0) {0,1}(chf|sfr|fr|\.\-)[^0-9a-z]', ' priceentity ', text)
-    #     # match following patterns with chf,sfr,fr or .-:
-    #     # characters inside () are optional
-    #     # characters inside [] are prohibited
-    #     # x => number
-    #     # a => letter
-    #     #   [x or a or , or .]xxx( )chf[x or a]
-    #     text = re.sub(r'[^0-9a-z\.\,][0-9]{1,2} {0,1}(chf|sfr|fr|\.\-)[^0-9a-z]', ' priceentity ', text)
-    #     # match following patterns with decimalpoint or comma, real rappen-values and chf,sfr,fr or .-:
-    #     # characters inside () are optional
-    #     # characters inside [] are prohibited
-    #     # x => number
-    #     # a => letter
-    #     #   [x or a or , or .]chf(.)( )xxx.xx[x or a]
-    #     text = re.sub(r'[^0-9a-z\.\,](chf|sfr|fr)\.{0,1} {0,}\t{0,}[0-9]{1,2}(\.|\,)[0-9](5|0)[^0-9a-z]', ' priceentity ', text)
-    #     # match following patterns with decimalpoint or comma and real rappen-values:
-    #     # characters inside () are optional
-    #     # characters inside [] are prohibited
-    #     # x => number
-    #     # a => letter
-    #     #   [x or a or , or .]xxx.xx[x or a]
-    #     # to avoid detecting day times or dates the regex only detects
-    #     # prices with values after decimalpoint over 59 (i.e 12.60 or 1.65)
-    #     text = re.sub(r'[^0-9a-z\.\,][0-9]{1,2}(\.|\,)[6-9](0|5)[^0-9\.a-z]', ' priceentity ', text)
-    #     return text
 
     def beverageTagger(self, text):
         bev = pd.read_csv('../beverage_list.txt', header=None)
