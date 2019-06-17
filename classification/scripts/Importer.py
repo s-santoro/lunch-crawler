@@ -23,7 +23,7 @@ class Importer(Task):
     # Method to declare the Output-File
     def output(self):
         prefix = self.date.strftime("%Y-%m-%dT%H%M%S")
-        return LocalTarget("../data/%s_configID_%s_Importer_out.csv" % (prefix, self.configId), format=UTF8)
+        return LocalTarget("../output/%s_configID_%s_Importer_out.csv" % (prefix, self.configId), format=UTF8)
     
     # Method to generate the Output-File
     def run(self):
@@ -31,17 +31,17 @@ class Importer(Task):
         configs = Configurations().configs[self.configId]
 
         # Load all negative Files into Array
-        neg_filenames = [f for f in listdir("../files/neg")]
+        neg_filenames = [f for f in listdir("../input/neg")]
         neg_files = []
         for filename in neg_filenames:
-            filepath = "../files/neg/"+filename
+            filepath = "../input/neg/"+filename
             neg_files.append(pd.read_json(filepath, typ="series", encoding='utf-8-sig'))
             
         # Load all positive Files into Array
-        pos_filenames = [f for f in listdir("../files/pos")]
+        pos_filenames = [f for f in listdir("../input/pos")]
         pos_files = []
         for filename in pos_filenames:
-            filepath = "../files/pos/"+filename
+            filepath = "../input/pos/"+filename
             pos_files.append(pd.read_json(filepath, typ="series", encoding='utf-8-sig'))
         
         # Load negative Array into Dataframe and add Column with "0" for beeing negative Example

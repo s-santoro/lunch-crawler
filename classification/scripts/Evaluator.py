@@ -24,7 +24,7 @@ class Evaluator(Task):
     # Method to declare the Output-File
     def output(self):
         prefix = self.date.strftime("%Y-%m-%dT%H%M%S")
-        return LocalTarget("../data/%s_configID_%s_Evaluator_out.csv" % (prefix, self.configId), format=UTF8)
+        return LocalTarget("../output/%s_configID_%s_Evaluator_out.csv" % (prefix, self.configId), format=UTF8)
     
     # Method to define the required Task (Preprocessor)
     def requires(self):
