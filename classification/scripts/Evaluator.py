@@ -82,7 +82,7 @@ class Evaluator(Task):
 
         # write report to file
         prefix = self.date.strftime("%Y-%m-%dT%H%M%S")
-        filename = "../data/evaluation_report/F1_%s_Pre_%s_Rec_%s_configID_%s_%s.txt" % (f1, precision, recall, self.configId, prefix)
+        filename = "../output/evaluation_report/F1_%s_Pre_%s_Rec_%s_configID_%s_%s.txt" % (f1, precision, recall, self.configId, prefix)
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         f = open(filename, "w")
         f.write(evalReport)
