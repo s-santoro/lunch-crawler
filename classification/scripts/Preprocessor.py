@@ -83,7 +83,7 @@ class Preprocessor(Task):
             # Write rows for Output-File
             row = [document.text, text, document.url, title, document.Class]
             output_df.loc[index] = row
-        
+
         # Write .csv-File
         with self.output().open("w") as out:
             output_df.to_csv(out, encoding="utf-8")
@@ -120,23 +120,17 @@ class Preprocessor(Task):
         stemmer = Cistem()
         return stemmer.stem(word)
     
-    def removeStopWords(self, words):
+    def removeStopWords(self, text):
         # use own stopword list
         stop = pd.read_csv('../stopwords_no_umlaute.txt', header=None)
         stop.columns = ['word']
-        # convert list to set for word comparison
-        stopwordSet = set(stop.word)
-        wordsFiltered = []
-        wordsRemoved = []
-        for w in words:
-            if w not in stopwordSet:
-                wordsFiltered.append(w)
+        stopWords = self.stemText(" ".join(stop.word))
+        stopwordSet = set(stopWords)
+        text = self.stemText(text)
+        for i, w in enumerate(text):
             if w in stopwordSet:
-                wordsRemoved.append(w)
-
-        #print("Removed words: %s" % wordsRemoved)
-        #print("Percentage of removed words: %s" % (len(wordsRemoved)/len(words)*100))
-        return wordsFiltered
+                del text[i]
+        return text
     
     def replaceUmlaut(self, text):
         text = re.sub(r'ä', 'a', text)
