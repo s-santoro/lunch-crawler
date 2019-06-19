@@ -43,5 +43,5 @@ reduced_pos
 __pycache__
 
 # CSV Output
-data
+output
 *_checkpoints
