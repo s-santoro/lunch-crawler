@@ -124,9 +124,12 @@ class Preprocessor(Task):
         # use own stopword list
         stop = pd.read_csv('../stopwords_no_umlaute.txt', header=None)
         stop.columns = ['word']
-        stopWords = self.stemText(" ".join(stop.word))
-        stopwordSet = set(stopWords)
-        text = self.stemText(text)
+        if(Configurations().configs[self.configId].get("textStemText")):
+            stopwordSet = set(stop.word)
+        else:
+            stopWords = self.stemText(" ".join(stop.word))
+            stopwordSet = set(stopWords)
+            text = self.stemText(text)
         for i, w in enumerate(text):
             if w in stopwordSet:
                 del text[i]
