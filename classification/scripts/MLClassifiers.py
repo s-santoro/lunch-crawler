@@ -70,8 +70,6 @@ class MLClassifiers(Task):
     def run(self):
         # use configID from commandline
         configs = Configurations().configs[self.configId]
-        if configs.get("useML") == False:
-            return
         eval_dict = {}
 
         # parameters for config
@@ -83,10 +81,12 @@ class MLClassifiers(Task):
         random_state = configs.get("random_state")
         # bag of words
         max_features = configs.get("maxFeatures")
+        binary = configs.get("binary")
         # tfidf
         ngram_range = configs.get("ngram_range")
         min_df = configs.get("min_df")
         max_df = configs.get("max_df")
+        max_features_tfidf = configs.get("maxFeaturesTFIDF")
         # dimension reduction (truncated svd)
         n_components = configs.get("n_components")
         n_iter = configs.get("n_iter")
@@ -97,6 +97,8 @@ class MLClassifiers(Task):
         # convert document['cleaned_text'] from string to list of words
         for index, document in input_df.iterrows():
             text = document['cleaned_text']
+            #print("MLClassifier")
+            #print(text)
             text = re.sub(r"[',\[\]]", "", text)
             wordlist = text.split(" ")
             row = [document.text, wordlist, document.url, document.title, document['class']]
@@ -132,7 +134,7 @@ class MLClassifiers(Task):
         y = cleaned_df['class_num'].values               # target
 
         # Train test split with stratified sampling for evaluation
-        X_train, X_test, y_train, y_test = train_test_split(X,
+        X_train, X_validation, y_train, y_validation = train_test_split(X,
                                                             y,
                                                             test_size=test_size,
                                                             shuffle=shuffle,
@@ -148,20 +150,20 @@ class MLClassifiers(Task):
 
         # Bag of Words
         if configs.get("use_BoW"):
-            vectorizer = CountVectorizer(max_features=max_features,
-                                         binary=True)
+            vectorizer = CountVectorizer(max_features=max_features, binary=binary)
 
             X_train = vectorizer.fit_transform(X_train).toarray()
-            X_test = vectorizer.transform(X_test).toarray()
+            X_validation = vectorizer.transform(X_validation).toarray()
 
         # Tf-Idf
         if configs.get("use_tfidf"):
             tfidf_vectorizer = TfidfVectorizer(ngram_range=ngram_range,
                                                min_df=min_df,
-                                               max_df=max_df)
+                                               max_df=max_df,
+                                               max_features=max_features_tfidf)
 
             X_train = tfidf_vectorizer.fit_transform(X_train).toarray()
-            X_test = tfidf_vectorizer.transform(X_test).toarray()
+            X_validation = tfidf_vectorizer.transform(X_validation).toarray()
 
         # Dimensionality reduction
         if configs.get("use_dimension_reduction"):
@@ -170,23 +172,32 @@ class MLClassifiers(Task):
                                random_state=random_state)
 
             X_train = lsa.fit_transform(X_train)
-            X_test = lsa.transform(X_test)
+            X_validation = lsa.transform(X_validation)
             scaler = MinMaxScaler()
             X_train = scaler.fit_transform(X_train)
-            X_test = scaler.transform(X_test)
+            X_validation = scaler.transform(X_validation)
 
+        # calculate class weights
+        # Bring unequal distribution of pos/neg samples into account
+        negatives = np.count_nonzero(cleaned_df['class_num']==0)
+        positives = np.count_nonzero(cleaned_df['class_num']==1)
+        if positives > 0:
+            ratio = negatives / positives
+            class_weight = {0: 1., 1: ratio}
+        else:
+            class_weight = {0: 1., 1: 1.}
         # Preliminary model evaluation using default parameters
 
         # Creating a dict of the models
         # set all to random_state to 3 if parameter exists
         # all other parameters are set to default
-        model_dict = {'Linear SVC': LinearSVC(),
-                      'Ridge Classifier': RidgeClassifier(random_state=random_state),
-                      'Perceptron': Perceptron(random_state=random_state, n_jobs=-1),
-                      'Passive Aggressive Classifier': PassiveAggressiveClassifier(random_state=random_state, n_jobs=-1),
-                      'Stochastic Gradient Descent': SGDClassifier(random_state=random_state, n_jobs=-1),
-                      'Random Forest': RandomForestClassifier(random_state=random_state, n_jobs=-1),
-                      'Decsision Tree': DecisionTreeClassifier(random_state=random_state),
+        model_dict = {'Linear SVC': LinearSVC(class_weight=class_weight),
+                      'Ridge Classifier': RidgeClassifier(random_state=random_state, class_weight=class_weight),
+                      'Perceptron': Perceptron(random_state=random_state, n_jobs=-1, class_weight=class_weight),
+                      'Passive Aggressive Classifier': PassiveAggressiveClassifier(random_state=random_state, n_jobs=-1, class_weight=class_weight),
+                      'Stochastic Gradient Descent': SGDClassifier(random_state=random_state, n_jobs=-1, class_weight=class_weight),
+                      'Random Forest': RandomForestClassifier(random_state=random_state, n_jobs=-1, class_weight=class_weight),
+                      'Decsision Tree': DecisionTreeClassifier(random_state=random_state, class_weight=class_weight),
                       'AdaBoost': AdaBoostClassifier(random_state=random_state),
                       'Gaussian Naive Bayes': GaussianNB(),
                       'Bernoulli Bayes': BernoulliNB(),
@@ -196,7 +207,7 @@ class MLClassifiers(Task):
                       'Nearest Centroid': NearestCentroid()
                       }
 
-        all_model_scores = self.model_score_df(model_dict, X_train, y_train, X_test, y_test)
+        all_model_scores = self.model_score_df(model_dict, X_train, y_train, X_validation, y_validation)
         models_report = ""
         models_report += "All model performances with default parameters:\n"
         models_report += str(all_model_scores)
@@ -239,41 +250,7 @@ class MLClassifiers(Task):
 
         fig = plt.gcf()
         plt.show()
-        plt.close()
-
-        # Hyperparameter tuning
-
-
-
-        # # Confusion Matrix
-        #
-        # # Fit the training data
-        # best_model.fit(X_train, y_train)
-        #
-        # # Predict the testing data
-        # y_pred = sgd_best_model.predict(X_test)
-        #
-        # # Get the confusion matrix and put it into a df
-        # cm = confusion_matrix(y_test, y_pred)
-        #
-        # cm_df = pd.DataFrame(cm,
-        #                      index=['menu', 'no_menu'],
-        #                      columns=['menu', 'no_menu'])
-        #
-        # # Plot the heatmap
-        # plt.figure(figsize=(12, 8))
-        #
-        # sns.heatmap(cm_df,
-        #             center=0,
-        #             cmap=sns.diverging_palette(220, 15, as_cmap=True),
-        #             annot=True,
-        #             fmt='g')
-        #
-        # plt.title('SGD (loss = log) \nF1 Score (avg = macro) : {0:.2f}'.format(f1_score(y_test, y_pred, average='macro')),
-        #           fontsize=13)
-        # plt.ylabel('True label', fontsize=13)
-        # plt.xlabel('Predicted label', fontsize=13)
-        # plt.show()
+        plt.close()        
 
         # write report to file
         filename = "../data/models_report/configID_%s_%s.txt" % (self.configId, prefix)
@@ -288,15 +265,15 @@ class MLClassifiers(Task):
             cleaned_df.to_csv(out, encoding="utf-8")
 
     # Function to get the scores for each model in a df
-    def model_score_df(self, model_dict, X_train, y_train, X_test, y_test):
+    def model_score_df(self, model_dict, X_train, y_train, X_validation, y_validation):
         model_name, p_score_list, r_score_list, f1_score_list = [], [], [], []
         for k, v in model_dict.items():
             model_name.append(k)
             v.fit(X_train, y_train)
-            y_pred = v.predict(X_test)
-            p_score_list.append(precision_score(y_test, y_pred, average='macro'))
-            r_score_list.append(recall_score(y_test, y_pred, average='macro'))
-            f1_score_list.append(f1_score(y_test, y_pred, average='macro'))
+            y_pred = v.predict(X_validation)
+            p_score_list.append(precision_score(y_validation, y_pred))
+            r_score_list.append(recall_score(y_validation, y_pred))
+            f1_score_list.append(f1_score(y_validation, y_pred))
             model_comparison_df = pd.DataFrame([model_name, p_score_list, r_score_list, f1_score_list]).T
             model_comparison_df.columns = ['model_name', 'precision_score', 'recall_score', 'f1_score']
             model_comparison_df = model_comparison_df.sort_values(by='f1_score', ascending=False)
