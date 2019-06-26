@@ -7,6 +7,7 @@ from luigi.parameter import IntParameter
 from luigi.format import UTF8
 from luigi import LocalTarget, Task, WrapperTask
 import datetime
+import re
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
 from Preprocessor import Preprocessor
@@ -29,12 +30,11 @@ class RulebasedClassifier(Task):
     # Method to declare the Output-File
     def output(self):
         prefix = self.date.strftime("%Y-%m-%dT%H%M%S")
-        return LocalTarget("../data/%s_configID_%s_Classifier_out.csv" % (prefix, self.configId), format=UTF8)
+        return LocalTarget("../output/%s_configID_%s_Classifier_out.csv" % (prefix, self.configId), format=UTF8)
 
     # Method to define the required Task (Preprocessor)
     def requires(self):
         return Preprocessor(self.configId)
-
 
     # Classify the imported Data
     def run(self):
@@ -42,28 +42,73 @@ class RulebasedClassifier(Task):
         configs = Configurations().configs[self.configId]
 
         df = pd.read_csv(self.input().path)
+        cleaned_df = pd.DataFrame(columns=('text', 'cleaned_text', 'url', 'title', 'class'))
         output_df = pd.DataFrame(columns=('specified', 'predicted', 'url'))
         output_df['specified'] = df['class'].values
 
+        # Change Text String to List
+        for index, document in df.iterrows():
+            text = document['cleaned_text']
+            text = re.sub(r"[',\[\]]", "", text)
+            wordlist = text.split(" ")
+            row = [document.text, wordlist, document.url, document.title, document['class']]
+            cleaned_df.loc[index] = row
+
+        # Menu in Title
+        if configs.get("classifyMenuInTitle"):
+            for index, document in cleaned_df.iterrows():
+                value = self.runMenuInTitle(document)
+                output_df['predicted'].iloc[index] = value
+                output_df['url'].iloc[index] = df['url'].iloc[index]
+        # Pricedetector
+        if configs.get("classifyPricedetector"):
+            for index, document in cleaned_df.iterrows():
+                value = self.runPricedetector(document)
+                output_df['predicted'].iloc[index] = value
+                output_df['url'].iloc[index] = df['url'].iloc[index]
+        # Menu and Price combined
+        if configs.get("classifyPriceMenuCombined"):
+            for index, document in cleaned_df.iterrows():
+                value = self.runMenuPriceCombined(document)
+                output_df['predicted'].iloc[index] = value
+                output_df['url'].iloc[index] = df['url'].iloc[index]
         # Bag of Words Method
         if configs.get("classifyBagOfWords"):
             output_df = self.runBoWRules(df)
-        # Whitelisting and Price-Tagger Method
-        if configs.get("classifyCombinedRules"):
+        # Blacklisting/Whitelisting Method
+        if configs.get("classifyListing"):
             for index, document in df.iterrows():
-                value = self.runCombinedRules(document)
+                value = self.runListing(document)
                 output_df['predicted'].iloc[index] = value
                 output_df['url'].iloc[index] = df['url'].iloc[index]
-
-        # show how many documents had white list entries
-        # maybe for later eval-output interesting
-        # print("pos: %s"%self.printPosCounter)
-        # print("neg: %s"%self.printNegCounter)
-        # print(len(output_df['predicted']))
 
         # Write .csv-File
         with self.output().open("w") as out:
             output_df.to_csv(out, encoding="utf-8")
+
+    def runMenuInTitle(self, document):
+        if Preprocessor().stemWord("menu") in document["title"]:
+            return 1
+        else:
+            return 0
+        
+
+    def runPricedetector(self, document):
+        value = 0
+        limit = Configurations().configs[self.configId].get("priceLimit")
+        for word in document["cleaned_text"]:  
+            if Preprocessor().stemWord('twodigitprice') == word:       
+                value+=1
+        if value >= limit:
+            return 1
+        else:
+            return 0
+    
+    def runMenuPriceCombined(self, document):
+        if Preprocessor().stemWord("menu") in document["title"]:
+            return 1
+        else:
+            return self.runPricedetector(document)
 
     def runBoWRules(self, data):
         # Split Data into Train Files (for generating BoW) and Test Files
@@ -118,12 +163,12 @@ class RulebasedClassifier(Task):
         features = vectorizer.get_feature_names()
         return features
 
-    def runCombinedRules(self, document):
+    def runListing(self, document):
         text = document.cleaned_text
-        posValueCounter = 100
-        negValueCounter = 100
+        posValueCounter = 1
+        negValueCounter = 1
         # Whitelisting
-        whitelist = pd.read_csv('../food_white_list_no_umlaute.txt', header=None)
+        whitelist = pd.read_csv('../whitelist.txt', header=None)
         whitelist.columns = ['word']
         whitelistWords = Preprocessor().stemText(" ".join(whitelist.word))
         whitelistSet = set(whitelistWords)
@@ -133,7 +178,6 @@ class RulebasedClassifier(Task):
                 whitelistDict[word] += 1
         for key, value in whitelistDict.items():
             posValueCounter+=value
-
         # Blacklisting
         blacklist = pd.read_csv('../blacklist.txt', header=None)
         blacklist.columns = ['word']
@@ -145,10 +189,10 @@ class RulebasedClassifier(Task):
                 blacklistDict[word] += 1
         for key, value in blacklistDict.items():
             negValueCounter+=value
-        #posValueCounter = posValueCounter/Configurations().configs[self.configId].get("treshold")
-        #if posValueCounter > negValueCounter:
-        ratio = posValueCounter/negValueCounter
-        if ratio > Configurations().configs[self.configId].get("treshold"):
+        # Classify
+        if negValueCounter > Configurations().configs[self.configId].get("negLimit"):
+            return 0
+        elif posValueCounter > Configurations().configs[self.configId].get("posLimit"):
             return 1
         else:
             return 0
