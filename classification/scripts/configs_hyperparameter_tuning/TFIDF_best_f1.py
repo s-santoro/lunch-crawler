@@ -47,7 +47,7 @@ class Configurations:
 
             # hyperparameter
             "params": {
-                "loss" :  ['log', 'hinge', 'squared hinge'],
+                "loss" :  ['log', 'hinge', 'squared_hinge'],
                 "penalty" : [None, 'l2','l1', 'elasticnet'],
                 "alpha" : [1e-6, 1e-5, 1e-4, 5e-4, 1e-3, 2e-3, 5e-3, 1e-2, 1e-1, 1e0],
                 "max_iter" : [5, 100, 200, 500, 1000, 10000],
