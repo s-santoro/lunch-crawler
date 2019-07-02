@@ -46,3 +46,4 @@ __pycache__
 input
 output
 *_checkpoints
+data
