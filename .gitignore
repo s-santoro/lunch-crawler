@@ -47,3 +47,6 @@ input
 output
 *_checkpoints
 data
+
+# pickled files (some are too big for github > 100MB)
+*.sav
