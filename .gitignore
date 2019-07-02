@@ -50,3 +50,6 @@ data
 
 # pickled files (some are too big for github > 100MB)
 *.sav
+
+# logs folder
+logs
