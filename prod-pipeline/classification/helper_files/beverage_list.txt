@@ -1,0 +1,97 @@
+icetea
+ice tea
+eistee
+cocacola
+coca cola
+cola zero
+valser
+pepsi
+sprite
+fanta
+mineralwasser
+wasser
+redbull
+red bull
+energydrink
+energy drink
+energy-drink
+orangensaft
+sinalco
+citro
+shorley
+rivella
+schweppes
+espresso
+caffe
+caffe latte
+macchiato
+americano
+cappuccino
+kaffee
+milchkaffee
+tee
+earl grey
+english breakfast
+fruchtetee
+krautertee
+rooibos
+schokolade
+ovomaltine
+milch
+bier
+panache
+radler
+eve
+feldschlosschen
+heineken
+calanda
+falken
+schutzengarten
+eichhof
+wein
+weisswein
+rotwein
+rose
+rosewein
+prosecco
+corona
+mohl
+aperol
+heida
+primitivo
+amarone
+brunello
+ripasso
+chianti
+rosato
+pinot grigio
+pinot noir
+blauburgunder
+riesling
+dole
+fechy
+sauvignon
+chardonnay
+barolo
+merlot
+johannisverg
+veltliner
+syrah
+champagner
+moscato
+rioja
+bodegas
+reserva
+grappa
+rum
+obstbrand
+amaretto
+smirnoff
+ballantines
+bacardi
+vodka
+scotch
+whisky
+redlabel
+red label
+baileys
