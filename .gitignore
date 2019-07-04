@@ -43,6 +43,7 @@ reduced_pos
 __pycache__
 
 # CSV Input and Output
+*.csv
 input
 output
 *_checkpoints
