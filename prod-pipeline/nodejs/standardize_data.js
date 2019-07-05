@@ -6,6 +6,9 @@ const psl = require('psl');
 const request = require('sync-request');
 
 // Data Import
+// OSM Data:        Same Folder as Script, Name: "OSM_Data_raw.json"
+// LC Data:         Same Folder as Script, Name: "lc-card-data.csv"
+// Classified Data: Files in Subfolder called "menu"
 let osmData = require('./OSM_Data_raw.json');
 let lcData = csv.toObject(fs.readFileSync(path.join(__dirname, './lc-card-data.csv'), { encoding : 'utf8'}));
 let classifiedData = readClassifiedData();
