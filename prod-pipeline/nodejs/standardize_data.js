@@ -3,31 +3,68 @@ const fs = require('fs');
 const csv = require("csvjson");
 const path = require('path');
 const psl = require('psl');
-const fetch = require("node-fetch");
+const request = require('sync-request');
 
-// Data Import and Cleanup
+// Data Import
 let osmData = require('./OSM_Data_raw.json');
-let lsData = csv.toObject(fs.readFileSync(path.join(__dirname, 'lc-card-data.csv'), { encoding : 'utf8'}));
-let cleanOSMData = clearOSMData(osmData);
-let cleanlcData = clearLCData(lsData, cleanOSMData);
-let mergedData = cleanOSMData.concat(cleanlcData);
-writeToOutput(mergedData);
+let lcData = csv.toObject(fs.readFileSync(path.join(__dirname, './lc-card-data.csv'), { encoding : 'utf8'}));
+let classifiedData = readClassifiedData();
 
-// Add OSM Data with URL to shared array
+// Data Cleanup
+let cleanOSMData = clearOSMData(osmData);
+let cleanlcData = clearLCData(lcData, cleanOSMData);
+let mergedData = cleanOSMData.concat(cleanlcData);
+let finalData = matchData(classifiedData, mergedData);
+
+writeToOutput(finalData);
+
+
+// Match URL of classiefied Data to Homepage-URL of Data from OSM & Lunch Check
+function matchData(classifiedData, mergedData){
+    for(var i in classifiedData){
+        for(var j in mergedData){
+            if(psl.get(extractHostname(classifiedData[i].url)) == mergedData[j].homepage){
+                mergedData[j].menuURL.push(classifiedData[i].url);
+                mergedData[j].text.push(classifiedData[i].text);
+                break;
+            }
+        }
+    }
+    return mergedData;
+}
+
+// Read multiple JSON files from Subfolder and write them to Array
+function readClassifiedData(){
+    let data = [];
+    const directoryPath = path.join(__dirname, 'menu');
+    let files = fs.readdirSync(directoryPath);
+    files.forEach( function (filename) {
+        file = JSON.parse(fs.readFileSync(path.join(directoryPath, filename), { encoding : 'utf8'}))
+        let obj = {
+            "url": file.url,
+            "text": file.text
+        }
+        data.push(obj); 
+    });
+    return data;
+}
+
+// Read OSM Data and rewrite them in standardized way to an array
 function clearOSMData(osmData){
     let data = [];
     for(let i = 0; i < osmData.length; i++) {
         let osmObj = osmData[i];
-        if(osmObj.tags!=undefined && osmObj.tags.website!=undefined){
+        // Only write Objects with Website 
+        if(osmObj.tags!=undefined && osmObj.tags.website!=undefined && osmObj.lat!=undefined && osmObj.lon!=undefined){
             let obj = {
                 "name": osmObj.tags.name,
                 "homepage": psl.get(extractHostname(osmObj.tags.website)),
                 "lat": osmObj.lat,
                 "lon": osmObj.lon,
-                "Adress": "",
-                "City": "",
-                "menuURL": "",
-                "text": ""
+                "address": "",
+                "city": "",
+                "menuURL": [],
+                "text": []
             };
             data.push(obj);
         }
@@ -35,37 +72,34 @@ function clearOSMData(osmData){
     return data;
 }
 
+// Read Lunch Check Data, get the Geolocation and rewrite them in standardized way to an array
 function clearLCData(lcData, osmData){
     let data = []
     for(let i = 0; i < lcData.length; i++) {
         let lcObj = lcData[i];
         // Check if Data already exist from OSM
-        let exists = false;
-        for(let j = 0; j < osmData.length; j++){
-            if(psl.get(extractHostname(lcObj.Website)) == psl.get(extractHostname(osmData[j].homepage)) && !undefined){
-                exists = true;
-            }
-        }    
-        if(!exists){
+        let objChecker = osmData.find(obj => obj.homepage == psl.get(extractHostname(lcObj.Website)));    
+        if(objChecker==undefined){
             // No empty URL
             if(lcObj.Website!=""){
-                for(key in lcObj){
-                    //console.log(lcObj[key]);
-                    //console.log(typeof(key));     
+                let geodata;
+                if(lcObj.Adresse!=undefined && lcObj.Ort!=undefined){
+                    geodata = syncGetLocation(lcObj.Adresse, lcObj.Ort);
                 }
-                //console.log(Object.keys(lcObj));
-                //console.log(lcObj)
+                if(geodata==null){
+                    geodata = [null, null];
+                }
+                //console.log(geodata)
                 let obj = {
                     "name": lcObj.Restaurant,
-                    "homepage": lcObj.Website,
-                    "lat": "",
-                    "lon": "",
-                    "Adress": lcObj.Adresse,
-                    "City": lcObj.Ort,
-                    "menuURL": "",
-                    "text": ""
+                    "homepage": psl.get(extractHostname(lcObj.Website)),
+                    "lat": parseFloat(geodata[0]),
+                    "lon": parseFloat(geodata[1]),
+                    "address": lcObj.Adresse,
+                    "city": lcObj.Ort,
+                    "menuURL": [],
+                    "text": []
                 }
-                console.log(obj)
                 data.push(obj);
             }
         }    
@@ -73,6 +107,7 @@ function clearLCData(lcData, osmData){
     return data;
 }
 
+// Extracts Hostname out of URL
 function extractHostname(url) {
     var hostname;
     //find & remove protocol (http, ftp, etc.) and get hostname
@@ -94,6 +129,7 @@ function extractHostname(url) {
     
 }
 
+// Writes Array to JSON File
 function writeToOutput(data){
     fs.writeFile('./output.json', JSON.stringify(data), (err)=>{
         if (err) throw err;
@@ -101,17 +137,26 @@ function writeToOutput(data){
     })
 }
 
-async function getGeolocation(address, city){
-    let url = "https://eu1.locationiq.com/v1/search.php?key=e4dcb73bab907f&state=Switzerland&city="+ city +"&street="+ address +"&format=json"
-    fetch(url)
-    .then(function(response) {
-        return response.json();
-    })
-    .then(function(myJson) {
-        var string = JSON.stringify(myJson);
-        var objectValue = JSON.parse(string);
-        //console.log([objectValue[0].lat, objectValue[0].lon]);
-        return [objectValue[0].lat, objectValue[0].lon];
-    }).catch(error => console.error('Error:', error));
+// Requests Geolocation from local version of "Nominatim" 
+function syncGetLocation(address, city){
+    let url = "http://localhost:7070/search?street="+ address +"&city="+ city +"&format=json"
+    url = encodeURI(url);
+    let res = request('GET', url, {
+    headers: {
+        'user-agent': 'der Don'
+    },
+    });
+    let object = JSON.parse(res.getBody('utf8'))
+    if(object[0]!=undefined){
+        if(object[0].lat!=undefined && object[0].lon!=undefined){
+            return [object[0].lat, object[0].lon]
+        }
+        else{
+            return null
+        }
+    }
+    else{
+        return null
+    }
 }
 
