@@ -50,7 +50,6 @@ const fetchRestaurants = (pos, query) => {
         .then(res => res.ok ? res.json() : null)
         // build map with restaurants
         .then(json => {
-            console.log(json);
             return restaurants = json.hits.hits.map(item => {
                 rest = item._source;
                 return {name: rest.name, homepage: rest.homepage, coords: [rest.lat, rest.lon], menuURL: rest.menuURL[0]};
