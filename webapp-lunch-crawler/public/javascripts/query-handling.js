@@ -11,13 +11,18 @@ $('#lunchButton').on('click', () => {
     $('#lunchInput').val('');
     query = getCleanedQuery(query);
     // get location => fetch restaurants wit 
-    fetchAndCreateMap(query);
+    if(query.length >= 3) {
+        fetchAndCreateMap(query);
+    }
 });
 
 const getCleanedQuery = (query) => {
     // same preprocessing steps like prod-pipeline
     query = query.replace(/[^éàèÉÀÈäöüÄÖÜa-zA-Z]+/g, ' ');  // remove special characters
     query = query.toLowerCase();
+    query = query.replace(/ä/g, 'a');
+    query = query.replace(/ö/g, 'o');
+    query = query.replace(/ü/g, 'u');
     queryLen = query.length;
     for (x = 0; x <= queryLen; x++) {
         query = query.replace(/(\s+|^)[a-z](\s+|$)/, ' ');  // remove single characters
@@ -46,7 +51,14 @@ const fetchRestaurants = (pos, query) => {
         // build map with restaurants
         .then(json => {
             console.log(json);
+            return restaurants = json.hits.hits.map(item => {
+                rest = item._source;
+                return {name: rest.name, homepage: rest.homepage, coords: [rest.lat, rest.lon], menuURL: rest.menuURL[0]};
+            });
+        })
+        .then(restaurants => {
             // create map of markers
+            populateMap(coords, restaurants);
         })
         .catch(err => console.log(err));
 }
