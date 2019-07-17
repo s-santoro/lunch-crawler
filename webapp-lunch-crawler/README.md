@@ -1,11 +1,11 @@
 # Lunch-Crawler Webapp
-## Voraussetzungen:
+## Voraussetzungen
 - Docker
 - Node.js
 - npm
 - Webbrowser (getestet mit Mozilla Firefox)
 
-## Ablauf der Installation:
+## Ablauf der Installation
 1. Das [Github-Repository](https://github.com/s-santoro/lunch-crawler) herunterladen
 2. Docker-Image von Elasticsearch herunterladen: docker pull docker.elastic.co/elasticsearch/elasticsearch:7.0.1
 3. Docker-Container starten: docker run -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch:7.0.1
