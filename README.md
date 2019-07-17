@@ -61,6 +61,7 @@ In the practical part of the work, a web application was developed in addition t
   - [HTML](https://github.com/s-santoro/lunch-crawler/tree/master/webapp-lunch-crawler/views)
 - [Backend](https://github.com/s-santoro/lunch-crawler/blob/master/webapp-lunch-crawler/app.js)
   - [Routes](https://github.com/s-santoro/lunch-crawler/tree/master/webapp-lunch-crawler/routes)
+- [Basics für Elasticsearch](https://github.com/s-santoro/lunch-crawler/blob/master/webapp-lunch-crawler/Elasticsearch.txt)
   
 ## Informationen
 Abgabedatum: 09.08.2019
