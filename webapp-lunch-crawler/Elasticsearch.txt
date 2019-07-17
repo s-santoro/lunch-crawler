@@ -1,0 +1,56 @@
+Elasticsearch
+Quelle: https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html
+Prerequisites:
+1. Docker installieren
+2. Elasticsearch Container pullen: docker pull docker.elastic.co/elasticsearch/elasticsearch:7.0.1
+
+3. Docker Container starten
+docker run -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch:7.0.1
+
+4. Checken, ob Container läuft
+http://localhost:9200
+
+
+
+Arbeiten mit Elasticsearch
+Quelle: https://www.tutorialspoint.com/elasticsearch/elasticsearch_populate.htm
+
+=== Index erstellen ===
+PUT http://localhost:9200/schools
+
+
+=== JSON zu einem Index hinzufügen ===
+PUT -> ID muss angegeben werden
+POST -> ID wird von Elasticsearch selbst erstellt
+Link: https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-index_.html
+
+=== JSON mit ID abfragen ===
+http://localhost:9200/twitter/_doc/1 --> Mit Metadaten
+http://localhost:9200/twitter/_source/1 --> Ohne Metadaten, nur Content
+Link: https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-get.html
+
+=== Search API ===
+http://localhost:9200/twitter/_search?q=user:hans
+Link: https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-search.html
+Link: https://dzone.com/articles/23-useful-elasticsearch-example-queries
+
+=== Suchabfrage für 10000 Einträge eines Index ===
+http://localhost:9200/menu/_search?pretty=true&q=*:*&size=10000
+
+
+=== Suche mit Leerschlägen ===
+"http://localhost:9200/menu/_search?pretty=true&q=schnitzel paniert"
+
+=== Shell Script, um multiple JSON Files hinzuzufügen ===
+#!/bin/bash
+for filename in menu/*.json; do
+	curl -H 'Content-Type: application/json' -XPOST 'localhost:9200/menu/_doc' --data-binary @$filename
+done
+
+
+
+
+
+
+
+
