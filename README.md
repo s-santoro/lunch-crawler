@@ -24,10 +24,12 @@ In the practical part of the work, a web application was developed in addition t
 - [Impementierung StormCrawler](https://github.com/s-santoro/lunch-crawler/tree/master/storm-crawler-master)
   - [Angepasste Komponenten](https://github.com/s-santoro/lunch-crawler/tree/master/storm-crawler-master/archetype/src/main/resources/archetype-resources/src/main/java/ntb/iks)
   - [Docker-Compose](https://github.com/s-santoro/lunch-crawler/tree/master/storm-cluster)
+- [Script zur Analyse der gecrawlten Rohdaten](https://github.com/s-santoro/lunch-crawler/blob/master/storm-crawler-master/scripts/website_histogram.py)
   
 ### Gold Standard
 - [Gold Standard](https://github.com/s-santoro/lunch-crawler/tree/master/gold-standard)
 - [Tool zum manuellen Labeln]()
+- [Script zur Extrahierung zufälliger Daten aus den gecrawlten Rohdaten](https://github.com/s-santoro/lunch-crawler/blob/master/gold-standard/generate_randomfiles.sh)
 
 ### Klassifikationspipeline
 - [Übersicht](https://github.com/s-santoro/lunch-crawler/tree/master/classification)
@@ -39,8 +41,8 @@ In the practical part of the work, a web application was developed in addition t
   - [Evaluierung der Klassifikation](https://github.com/s-santoro/lunch-crawler/blob/master/classification/scripts/Evaluator.py)
   - [Visualisierung der Klassifikation](https://github.com/s-santoro/lunch-crawler/blob/master/classification/scripts/DataVisualizer.py)
 - [Konfigurationen](https://github.com/s-santoro/lunch-crawler/tree/master/classification/scripts/configs)
-  -[Konfiguration für regelbasierte Klassifikation](https://github.com/s-santoro/lunch-crawler/blob/master/classification/scripts/configs/ConfigurationsRB.py)
-  -[Konfiguration für Klassifikation mittels Machine Learning](https://github.com/s-santoro/lunch-crawler/blob/master/classification/scripts/configs/ConfigurationsML.py)
+  - [Konfiguration für regelbasierte Klassifikation](https://github.com/s-santoro/lunch-crawler/blob/master/classification/scripts/configs/ConfigurationsRB.py)
+  - [Konfiguration für Klassifikation mittels Machine Learning](https://github.com/s-santoro/lunch-crawler/blob/master/classification/scripts/configs/ConfigurationsML.py)
 - Diverse Files
   - [Stoppwortliste](https://github.com/s-santoro/lunch-crawler/blob/master/classification/stopwords_no_umlaute.txt)
   - [Getränkeliste](https://github.com/s-santoro/lunch-crawler/blob/master/classification/beverage_list.txt)
