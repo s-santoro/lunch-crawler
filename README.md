@@ -32,7 +32,15 @@ In the practical part of the work, a web application was developed in addition t
 ### Klassifikationspipeline
 - [Übersicht](https://github.com/s-santoro/lunch-crawler/tree/master/classification)
 - [Code](https://github.com/s-santoro/lunch-crawler/tree/master/classification/scripts)
+  - [Datenimport](https://github.com/s-santoro/lunch-crawler/blob/master/classification/scripts/Importer.py)
+  - [Preprocessing](https://github.com/s-santoro/lunch-crawler/blob/master/classification/scripts/Preprocessor.py)
+  - [Regelbasierte Klassifikation](https://github.com/s-santoro/lunch-crawler/blob/master/classification/scripts/RulebasedClassifier.py)
+  - [Klassifikation mittels Machine Learning](https://github.com/s-santoro/lunch-crawler/blob/master/classification/scripts/MLClassifiers.py)
+  - [Evaluierung der Klassifikation](https://github.com/s-santoro/lunch-crawler/blob/master/classification/scripts/Evaluator.py)
+  - [Visualisierung der Klassifikation](https://github.com/s-santoro/lunch-crawler/blob/master/classification/scripts/DataVisualizer.py)
 - [Konfigurationen](https://github.com/s-santoro/lunch-crawler/tree/master/classification/scripts/configs)
+  -[Konfiguration für regelbasierte Klassifikation](https://github.com/s-santoro/lunch-crawler/blob/master/classification/scripts/configs/ConfigurationsRB.py)
+  -[Konfiguration für Klassifikation mittels Machine Learning](https://github.com/s-santoro/lunch-crawler/blob/master/classification/scripts/configs/ConfigurationsML.py)
 - Diverse Files
   - [Stoppwortliste](https://github.com/s-santoro/lunch-crawler/blob/master/classification/stopwords_no_umlaute.txt)
   - [Getränkeliste](https://github.com/s-santoro/lunch-crawler/blob/master/classification/beverage_list.txt)
