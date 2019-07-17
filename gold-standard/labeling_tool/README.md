@@ -1,4 +1,4 @@
-# testdata_tool
+# Labeling Tool
 Tool to improve manual labelling of test data.  
 The tool reads json-files inside `./files` and shows their respective HTML content.  
 After pressing the correct label key, the file is copied into the corresponding folder:
