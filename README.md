@@ -1,5 +1,4 @@
 # lunch-crawler
-## Einleitung
 Dieses Repository ist im Zusammenhang mit einer Bachelorarbeit erstellt worden.
 ## Abstract
 Ziel dieser Arbeit ist das Erstellen einer Suchmaschine, über welches sich Menüs und Speisen suchen lassen.
@@ -54,6 +53,8 @@ In the practical part of the work, a web application was developed in addition t
   - [Routes](https://github.com/s-santoro/lunch-crawler/tree/master/webapp-lunch-crawler/routes)
   
 ## Informationen
+Abgabedatum: 09.08.2019
+
 Studenten:
 - [Sandro Santoro](https://github.com/s-santoro)
 - [Gian Brunner](https://github.com/gianbrunner)
