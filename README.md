@@ -72,7 +72,7 @@ Referenten:
 - Lukas Toggenburger
 
 Schule:
-[Interstaatlichen Hochschule für Technik Buchs](http://ntb.ch)
+[NTB | Interstaatliche Hochschule für Technik Buchs](http://ntb.ch)
 
 Studiengang:
 [Systemtechnik](https://www.ntb.ch/studium/systemtechnik/)
