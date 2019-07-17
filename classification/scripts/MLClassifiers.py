@@ -141,13 +141,6 @@ class MLClassifiers(Task):
                                                             stratify=y,
                                                             random_state=random_state)
 
-        # https://stackoverflow.com/questions/48692500/fit-transform-on-training-data-and-transform-on-test-data/48692740
-        #
-        # Centering and scaling happens independently on each feature by computing the
-        # relevant statistics on the samples in the training set. Mean and standard deviation
-        # are then stored to be used on later data using the transform method. - sklearn.StandardScaler
-        #
-
         # Bag of Words
         if configs.get("use_BoW"):
             vectorizer = CountVectorizer(max_features=max_features, binary=binary)

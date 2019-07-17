@@ -130,13 +130,6 @@ class MLTuningPerceptron(Task):
                                                             stratify=y,
                                                             random_state=random_state)
 
-        # https://stackoverflow.com/questions/48692500/fit-transform-on-training-data-and-transform-on-test-data/48692740
-        #
-        # Centering and scaling happens independently on each feature by computing the
-        # relevant statistics on the samples in the training set. Mean and standard deviation
-        # are then stored to be used on later data using the transform method. - sklearn.StandardScaler
-        #
-
         # Bag of Words
         if configs.get("use_BoW"):
             vectorizer = CountVectorizer(max_features=max_features, binary=binary)
@@ -236,37 +229,6 @@ class MLTuningPerceptron(Task):
                 x += 1
                 models_report += " "
             models_report += "%s\n" % str(configs.get(key))
-        
-        
-        # # Confusion Matrix
-        
-        # # Fit the training data
-        # best_model.fit(X_train, y_train)
-        
-        # # Predict the testing data
-        # y_pred = sgd_best_model.predict(X_validation)
-        
-        # # Get the confusion matrix and put it into a df
-        # cm = confusion_matrix(y_validation, y_pred)
-        
-        # cm_df = pd.DataFrame(cm,
-        #                      index=['menu', 'no_menu'],
-        #                      columns=['menu', 'no_menu'])
-        
-        # # Plot the heatmap
-        # plt.figure(figsize=(12, 8))
-        
-        # sns.heatmap(cm_df,
-        #             center=0,
-        #             cmap=sns.diverging_palette(220, 15, as_cmap=True),
-        #             annot=True,
-        #             fmt='g')
-        
-        # plt.title('SGD (loss = log) \nF1 Score (avg = macro) : {0:.2f}'.format(f1_score(y_validation, y_pred, average='macro')),
-        #           fontsize=13)
-        # plt.ylabel('True label', fontsize=13)
-        # plt.xlabel('Predicted label', fontsize=13)
-        # plt.show()
 
         # write report to file
         filename = "../data/parameter_tuning/perceptron_%s.txt" % (prefix)

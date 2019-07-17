@@ -58,9 +58,3 @@ class Importer(Task):
         # Write .csv-File
         with self.output().open("w") as out:
             df.to_csv(out, encoding="utf-8")
-
-
-
-
-#impo = Importer()
-#impo.run()

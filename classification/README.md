@@ -1,20 +1,21 @@
 # Luigi Pipeline
-Luigi pipeline for data preprocessing, classification and evaluation.
-Luigi handles dependency resolution, workflow management and visualization of executed tasks.
+Die Luigi Pipeline Software wird für das Preprocessing, Klassifikation und Evaluation verwendet.
+Luigi managed dependency resolution, workflow management und Visualisierung von ausgeführten Tasks.
 [Luigi Documentation](https://luigi.readthedocs.io/en/latest/index.html)
 
-### Run pipeline
-run pipeline in combination with luigidaemon (webinterface)
-webinterface is available on localhost:8082  
-start luigi daemon  
-`$ luigid`  
-run luigi pipeline (first cd into scripts-folder)  
+### Pipeline starten
+Luigi in Kombination mit dem luigidaemon starten (webinterface).
+Das Webinterface ist auf localhost:8082 verfügbar.
+Befehl um Luigidaemon zu starten: `$ luigid`  
+Befehl um die Pipeline mit Modul _Evaluator.py_ zu starten (zuerst in scripts-Ordner wechseln):
 `$ python3 -m luigi --module Evaluator Evaluator --scheduler-host localhost`  
 
-run pipeline with local scheduler (first cd into scripts-folder) (no webinterface)  
+Luigi ohne Webinterface starten.
+Befehl um die Pipeline mit Modul _Evaluator.py_ zu starten (zuerst in scripts-Ordner wechseln):
 `$ python3 -m luigi --module Evaluator Evaluator --local-scheduler`  
 
-### IMPORTANT NOTICE
-Make sure to rename the suitable configs-file to ./configs/Configurations.py:
-- ConfigurationsML.py for Machine-learning pipeline
-- ConfigurationsRB.py for Rule-based pipeline
+### WICHTIGER HINWEIS
+Zuerst muss das Konfigurationsfile zu "./configs/Configurations.py" umbenannt werden.
+Vorhandene Konfigurationsfiles sind:
+- "./configs/ConfigurationsML.py" für Machine-learning pipeline
+- "./configs/ConfigurationsRB.py" für Rule-based pipeline

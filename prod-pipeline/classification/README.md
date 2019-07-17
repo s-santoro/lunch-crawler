@@ -1,9 +1,9 @@
-# Start production pipeline
-The production pipeline reads all webpage files from folder "./input" into memory.
-Then does preprocessing of specified content according to config file.
-The final task is to classify each file and move it either to folder "./output/menu" or "./output/no_menu".
-
-To start the production pipeline execute the bash-script "start_pipeline.sh" with following command:
-`./start_pipeline.sh`
-
-_IMPORTANT:_ Before starting pipeline, make sure to download pickle-files from dropbox and place them in "./pickled_files/".
+# Production Pipeline
+## Starten der Production Pipeline
+Zuerst müssen die Webpages in den neu-angelegten Ordner "./input" kopiert werden.
+Danach müssen die Pickle-Files in den neu-angelegten Ordner "./pickled_files/" kopiert werden.
+Anschliessend kann mit dem Befehl `./start_pipeline.sh` die Pipeline gestartet werden.
+## Ablauf Production Pipeline
+Die Production Pipeline liest alle Webpages vom Ordner "./input" in den Speicher.
+Anschliessend wird das Preprocessing entsprechend dem Konfigurationsfile im Ordner "./config/" durchgeführt.
+Schlussendlich werden die Webpages klassifiziert und in den passenden Ordner "./output/menu" oder "./output/no_menu" abgelegt.
