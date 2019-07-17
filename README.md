@@ -21,14 +21,14 @@ In the practical part of the work, a web application was developed in addition t
 
 ## Dateistruktur
 ### Webcrawler
-- [Impementierung StormCrawler](https://github.com/s-santoro/lunch-crawler/tree/master/storm-crawler-master)
+- [Implementierung StormCrawler](https://github.com/s-santoro/lunch-crawler/tree/master/storm-crawler-master)
   - [Angepasste Komponenten](https://github.com/s-santoro/lunch-crawler/tree/master/storm-crawler-master/archetype/src/main/resources/archetype-resources/src/main/java/ntb/iks)
   - [Docker-Compose](https://github.com/s-santoro/lunch-crawler/tree/master/storm-cluster)
 - [Script zur Analyse der gecrawlten Rohdaten](https://github.com/s-santoro/lunch-crawler/blob/master/storm-crawler-master/scripts/website_histogram.py)
   
 ### Gold Standard
 - [Gold Standard](https://github.com/s-santoro/lunch-crawler/tree/master/gold-standard)
-- [Tool zum manuellen Labeln]()
+- [Tool zum manuellen Labeln](https://github.com/s-santoro/lunch-crawler/tree/master/gold-standard/labeling_tool)
 - [Script zur Extrahierung zufälliger Daten aus den gecrawlten Rohdaten](https://github.com/s-santoro/lunch-crawler/blob/master/gold-standard/generate_randomfiles.sh)
 
 ### Klassifikationspipeline
