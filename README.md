@@ -21,16 +21,16 @@ In order to measure both classification outcomes, several experiments were execu
 In the practical part of the work, a web application was developed in addition to the web crawler, which makes the search engine accessible to users.
 
 ## Dateistruktur
-Webcrawler:
+### Webcrawler
 - [Impementierung StormCrawler](https://github.com/s-santoro/lunch-crawler/tree/master/storm-crawler-master)
   - [Angepasste Komponenten](https://github.com/s-santoro/lunch-crawler/tree/master/storm-crawler-master/archetype/src/main/resources/archetype-resources/src/main/java/ntb/iks)
   - [Docker-Compose](https://github.com/s-santoro/lunch-crawler/tree/master/storm-cluster)
   
-Gold Standard:
+### Gold Standard
 - [Gold Standard](https://github.com/s-santoro/lunch-crawler/tree/master/gold-standard)
 - [Tool zum manuellen Labeln]()
 
-Klassifikationspipeline:
+### Klassifikationspipeline
 - [Übersicht](https://github.com/s-santoro/lunch-crawler/tree/master/classification)
 - [Code](https://github.com/s-santoro/lunch-crawler/tree/master/classification/scripts)
 - [Konfigurationen](https://github.com/s-santoro/lunch-crawler/tree/master/classification/scripts/configs)
@@ -39,8 +39,20 @@ Klassifikationspipeline:
   - [Getränkeliste](https://github.com/s-santoro/lunch-crawler/blob/master/classification/beverage_list.txt)
   - [Blacklist](https://github.com/s-santoro/lunch-crawler/blob/master/classification/blacklist.txt)
   - [Whitelist](https://github.com/s-santoro/lunch-crawler/blob/master/classification/whitelist.txt)
+  
+### Produktive Pipeline
+- [Pipeline zur Klassifikation der Rohdaten](https://github.com/s-santoro/lunch-crawler/tree/master/prod-pipeline/classification)
+- [Script zur Standardisierung von Restaurantinformationen](https://github.com/s-santoro/lunch-crawler/blob/master/prod-pipeline/nodejs/standardize_data.js)
+- [Script zur Analyse von Restaurantinformationen](https://github.com/s-santoro/lunch-crawler/blob/master/prod-pipeline/nodejs/analyze_data.js)
 
-
+### Webapplikation
+- [Webapp](https://github.com/s-santoro/lunch-crawler/tree/master/webapp-lunch-crawler)
+- Frontend
+  - [Scripts](https://github.com/s-santoro/lunch-crawler/tree/master/webapp-lunch-crawler/public/javascripts)
+  - [HTML](https://github.com/s-santoro/lunch-crawler/tree/master/webapp-lunch-crawler/views)
+- [Backend](https://github.com/s-santoro/lunch-crawler/blob/master/webapp-lunch-crawler/app.js)
+  - [Routes](https://github.com/s-santoro/lunch-crawler/tree/master/webapp-lunch-crawler/routes)
+  
 ## Informationen
 Studenten:
 - [Sandro Santoro](https://github.com/s-santoro)
