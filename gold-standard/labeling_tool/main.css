@@ -1,0 +1,56 @@
+body {
+    width: 100%;
+    height: 100vh;
+}
+* {
+    background-color: lightgray;
+    color: black;
+    margin: 0px;
+    padding: 0px;
+}
+#title {
+    text-align: center;
+}
+#app {
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+}
+#no {
+    background-color: lightcoral;
+    float: left;
+    height: 20px;
+    width: 50%;
+    text-align: center;
+}
+#yes {
+    background-color: lightgreen;
+    float: right;
+    height: 20px;
+    width: 50%;
+    text-align: center;
+}
+#link {
+    background-color: lightblue;
+    float: right;
+    height: 20px;
+    width: 50%;
+    text-align: center;
+}
+#content {
+    background-color: lightblue;
+    width: 90%;
+    height: 100%;
+    margin: 0 auto;
+}
+#frame {
+    width: 100%;
+    height: 90%;
+}
+#text {
+    display:block;
+    height: auto;
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
