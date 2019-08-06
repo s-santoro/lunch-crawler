@@ -21,16 +21,16 @@ Vorhandene Konfigurationsfiles sind:
 - "./configs/ConfigurationsRB.py" für Rule-based pipeline
 
 ### Quellen der Stoppwortliste
-[Solariz](https://github.com/solariz/german_stopwords/blob/master/german_stopwords_full.txt)
-[Countwordfree](https://countwordsfree.com/stopwords/german)
-[Ranks](https://www.ranks.nl/stopwords/german)
-[Tradloff](https://github.com/tradloff/haiku/blob/master/wsgi/static/nltk-corpus-stopwords-german.txt)
+- [Solariz](https://github.com/solariz/german_stopwords/blob/master/german_stopwords_full.txt)
+- [Countwordfree](https://countwordsfree.com/stopwords/german)
+- [Ranks](https://www.ranks.nl/stopwords/german)
+- [Tradloff](https://github.com/tradloff/haiku/blob/master/wsgi/static/nltk-corpus-stopwords-german.txt)
 
 ### Quellen der Blacklist
-[fddb1](https://fddb.info/db/de/listen/261057_4_fleisch_im_vergleich/index.html)
-[fddb2](https://fddb.info/db/de/listen/149538__01__vergleichsliste__fisch/index.html)
-[fddb3](https://fddb.info/db/de/listen/150984__01__vergleichsliste__gemuese_i/index.html)
-[fddb4](https://fddb.info/db/de/listen/151001__01__vergleichsliste__gemuese_ii/index.html)
-[fddb5](https://fddb.info/db/de/listen/152634__01__vergleichsliste__scharf/index.html)
-[fddb6](https://fddb.info/db/de/listen/442751_vergleichsliste_beilagen/index.html)
-[fddb7](https://fddb.info/db/de/listen/155259__01__vergleichsliste__obst/index.html)
+- [fddb1](https://fddb.info/db/de/listen/261057_4_fleisch_im_vergleich/index.html)
+- [fddb2](https://fddb.info/db/de/listen/149538__01__vergleichsliste__fisch/index.html)
+- [fddb3](https://fddb.info/db/de/listen/150984__01__vergleichsliste__gemuese_i/index.html)
+- [fddb4](https://fddb.info/db/de/listen/151001__01__vergleichsliste__gemuese_ii/index.html)
+- [fddb5](https://fddb.info/db/de/listen/152634__01__vergleichsliste__scharf/index.html)
+- [fddb6](https://fddb.info/db/de/listen/442751_vergleichsliste_beilagen/index.html)
+- [fddb7](https://fddb.info/db/de/listen/155259__01__vergleichsliste__obst/index.html)
