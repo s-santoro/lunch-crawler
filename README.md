@@ -71,7 +71,7 @@ Studenten:
 - [Gian Brunner](https://github.com/gianbrunner)
 
 Referenten:
-- Corsin Capol
+- Prof. Corsin Capol
 - Lukas Toggenburger
 
 Schule:
